@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Tiny, non-sensitive preferences in localStorage. The client ID is public by design (not a secret).
 
-export type Theme = 'dark' | 'light' | 'contrast'
+export type Theme = 'auto' | 'dark' | 'light' | 'graphite' | 'contrast'
+export const THEMES: Theme[] = ['auto', 'dark', 'graphite', 'light', 'contrast']
 export interface Settings {
   clientId: string
   theme: Theme
@@ -10,7 +11,7 @@ export interface Settings {
   tourDone: boolean
 }
 const KEY = 'gsl.settings.v1'
-export const DEFAULTS: Settings = { clientId: '', theme: 'dark', capBytes: null, scanDepth: 'standard', tourDone: false }
+export const DEFAULTS: Settings = { clientId: '', theme: 'auto', capBytes: null, scanDepth: 'standard', tourDone: false }
 
 export function loadSettings(storage: Storage | undefined = globalThis.localStorage): Settings {
   try {
@@ -19,7 +20,7 @@ export function loadSettings(storage: Storage | undefined = globalThis.localStor
     const v = JSON.parse(raw) as Partial<Settings>
     return {
       clientId: typeof v.clientId === 'string' ? v.clientId : '',
-      theme: v.theme === 'light' || v.theme === 'contrast' ? v.theme : 'dark',
+      theme: THEMES.includes(v.theme as Theme) ? (v.theme as Theme) : 'auto',
       capBytes: typeof v.capBytes === 'number' && v.capBytes > 0 ? v.capBytes : null,
       scanDepth: v.scanDepth === 'quick' || v.scanDepth === 'deep' ? v.scanDepth : 'standard',
       tourDone: v.tourDone === true,

@@ -1,14 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useState } from 'react'
+import { restartTour } from '../components/Tour'
+import { Icon } from '../components/Icon'
+import { PageHeader, SectionHead } from '../components/PageHeader'
 import { go } from '../router'
 import { loadScanCache, saveScanCache, scanAll, signOut, switchAccount } from '../state/session'
-import { restartTour } from '../components/Tour'
 import { clearSettings, type Theme } from '../state/settings'
 import { useApp } from '../state/store'
 import { wipeAll } from '../util/cache'
 import { formatBytes } from '../util/format'
 
 const GiB = 2 ** 30
+/** Static previews so each swatch shows its own colours regardless of the active theme. */
+const SWATCHES: Array<{ id: Theme; name: string; bg: string; card: string; a: string; b: string; c: string }> = [
+  { id: 'auto', name: 'Auto (system)', bg: 'linear-gradient(90deg, #0a0e19 50%, #f3eee3 50%)', card: 'transparent', a: '#e8b552', b: '#96600f', c: '#7cb4ff' },
+  { id: 'dark', name: 'Atlas', bg: '#0a0e19', card: '#131a2e', a: '#e8b552', b: '#7cb4ff', c: '#5fd6b0' },
+  { id: 'graphite', name: 'Graphite', bg: '#111213', card: '#1e2022', a: '#3fd0b5', b: '#6aa8ff', c: '#f0c05a' },
+  { id: 'light', name: 'Paper', bg: '#f3eee3', card: '#fffdf7', a: '#96600f', b: '#2f6fbf', c: '#1d8a66' },
+  { id: 'contrast', name: 'High contrast', bg: '#000', card: '#141414', a: '#ffd400', b: '#7fd1ff', c: '#3dffb5' },
+]
 
 export default function Settings() {
   const settings = useApp((s) => s.settings)
@@ -20,55 +30,60 @@ export default function Settings() {
   const [wipe, setWipe] = useState('')
 
   return (
-    <div className="stack" style={{ gap: 20, maxWidth: 900 }}>
-      <h1>Settings</h1>
+    <div className="page" style={{ maxWidth: 980 }}>
+      <PageHeader eyebrow="Settings" title="Settings" />
+
       <section className="card stack">
-        <h2>Appearance</h2>
-        <div className="tabs" role="tablist" aria-label="Theme">
-          {(['dark', 'light', 'contrast'] as Theme[]).map((t) => (
-            <button key={t} role="tab" aria-selected={settings.theme === t} onClick={() => setSettings({ theme: t })}>
-              {t === 'dark' ? 'Observatory (dark)' : t === 'light' ? 'Paper (light)' : 'High contrast'}
+        <SectionHead title="Theme" info="Every theme meets WCAG AA contrast. Auto follows your system's light or dark preference." />
+        <div className="swatches" role="group" aria-label="Theme">
+          {SWATCHES.map((t) => (
+            <button key={t.id} type="button" className="swatch" aria-pressed={settings.theme === t.id} onClick={() => setSettings({ theme: t.id })}>
+              <span className="preview" style={{ background: t.bg }} aria-hidden="true">
+                <i style={{ background: t.a }} />
+                <i style={{ background: t.b }} />
+                <i style={{ background: t.c }} />
+              </span>
+              <span>{t.name}</span>
             </button>
           ))}
         </div>
       </section>
 
-      <section className="card stack">
-        <h2>Guided tour</h2>
-        <p className="muted">A five-step walk through the main views.</p>
-        <div>
-          <button className="btn sm" onClick={() => restartTour()}>
-            Restart the tour
-          </button>
-        </div>
-      </section>
-
-      <section className="card stack">
-        <h2>Storage cap</h2>
-        <p className="muted">
-          Current: {settings.capBytes ? formatBytes(settings.capBytes) : 'use the limit Google reports'}. Set this if your work or school
-          account has a personal cap smaller than the pooled limit.
-        </p>
-        <div className="row">
-          {[15, 20, 30, 100, 200].map((g) => (
-            <button key={g} className="btn sm" onClick={() => setSettings({ capBytes: g * GiB })}>
-              {g} GB
+      <div className="grid cols-2">
+        <section className="card stack">
+          <SectionHead title="Storage cap" info="Set this if your work or school account has a personal cap smaller than the pooled limit Google reports.">
+            <span className="chip">{settings.capBytes ? formatBytes(settings.capBytes) : 'From Google'}</span>
+          </SectionHead>
+          <div className="tabs" role="group" aria-label="Cap presets">
+            {[15, 20, 30, 100, 200].map((g) => (
+              <button key={g} type="button" aria-selected={settings.capBytes === g * GiB} onClick={() => setSettings({ capBytes: g * GiB })}>
+                {g} GB
+              </button>
+            ))}
+            <button type="button" aria-selected={!settings.capBytes} onClick={() => setSettings({ capBytes: null })}>
+              Auto
             </button>
-          ))}
-          <button className="btn sm ghost" onClick={() => setSettings({ capBytes: null })}>
-            Reset
-          </button>
-        </div>
-      </section>
+          </div>
+        </section>
+
+        <section className="card stack">
+          <SectionHead title="Guided tour" info="A five-step walk through the main views." />
+          <div>
+            <button className="btn sm" onClick={() => restartTour()}>
+              <Icon name="play" size={14} /> Restart tour
+            </button>
+          </div>
+        </section>
+      </div>
 
       <section className="card stack">
-        <h2>Your Google client</h2>
-        <p className="mono" style={{ wordBreak: 'break-all' }}>
+        <SectionHead title="Your Google client" info="The Client ID is public by design. Sign-out revokes the access token; you can also remove the app at myaccount.google.com/connections." />
+        <code className="card inset" style={{ wordBreak: 'break-all', padding: 12 }}>
           {settings.clientId || 'Not set'}
-        </p>
+        </code>
         <div className="row">
           <button className="btn sm" onClick={() => go('setup')}>
-            Change
+            <Icon name="key" size={14} /> Change
           </button>
           {mode === 'live' && (
             <button
@@ -82,7 +97,7 @@ export default function Settings() {
                 })
               }}
             >
-              Switch Google account
+              <Icon name="user" size={14} /> Switch Google account
             </button>
           )}
           {settings.clientId && (
@@ -92,54 +107,33 @@ export default function Settings() {
           )}
         </div>
         {granted.length > 0 && (
-          <>
-            <h3>Permissions granted this session</h3>
-            <ul className="mono" style={{ fontSize: '0.85rem' }}>
-              {granted.map((g) => (
-                <li key={g}>{g}</li>
-              ))}
-            </ul>
-            <p className="muted">
-              Sign out revokes the token. You can also remove the app at{' '}
-              <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener noreferrer">
-                myaccount.google.com/connections
-              </a>
-              .
-            </p>
-          </>
+          <div className="row" style={{ gap: 6 }}>
+            {granted.map((g) => (
+              <span key={g} className="chip" style={{ fontFamily: 'var(--mono)', fontSize: '0.7rem' }}>
+                {g.replace('https://www.googleapis.com/auth/', '').replace('https://', '')}
+              </span>
+            ))}
+          </div>
         )}
       </section>
 
       <section className="card stack">
-        <h2>Remember scans on this device (encrypted)</h2>
-        <p className="muted">
-          Large mailboxes take minutes to scan. Save the metadata encrypted with a passphrase only you know, then reload it next time and
-          press "Refresh changes" to fetch only what changed.
-        </p>
-        <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Passphrase (at least 8 characters)" autoComplete="new-password" aria-label="Passphrase" />
-        <div className="row">
-          <button
-            className="btn sm"
-            disabled={pass.length < 8 || mode === 'landing'}
-            onClick={() => void saveScanCache(pass).catch((e: Error) => toast(e.message, 'bad'))}
-          >
-            Save current scan
+        <SectionHead title="Encrypted scan cache" info="Large mailboxes take minutes to scan. Save the metadata on this device, encrypted with a passphrase only you know (AES-GCM, PBKDF2 310,000 rounds), then reload it and sync only the changes." />
+        <div className="row" style={{ flexWrap: 'wrap' }}>
+          <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Passphrase (8+ characters)" autoComplete="new-password" aria-label="Passphrase" style={{ maxWidth: 320 }} />
+          <button className="btn sm" disabled={pass.length < 8 || mode === 'landing'} onClick={() => void saveScanCache(pass).catch((e: Error) => toast(e.message, 'bad'))}>
+            <Icon name="lock" size={14} /> Save scan
           </button>
-          <button
-            className="btn sm"
-            disabled={pass.length < 8 || mode === 'landing'}
-            onClick={() => void loadScanCache(pass).catch((e: Error) => toast(e.message, 'bad'))}
-          >
-            Load saved scan
+          <button className="btn sm" disabled={pass.length < 8 || mode === 'landing'} onClick={() => void loadScanCache(pass).catch((e: Error) => toast(e.message, 'bad'))}>
+            <Icon name="download" size={14} /> Load scan
           </button>
         </div>
       </section>
 
       <section className="card stack airlock">
-        <h2>Wipe everything</h2>
-        <p>Signs out, revokes the token, deletes saved scans and forgets your Client ID and preferences on this device.</p>
+        <SectionHead title="Wipe this device" info="Signs out, revokes the token, deletes saved scans and forgets your Client ID and preferences." />
         <div className="row">
-          <input type="text" value={wipe} onChange={(e) => setWipe(e.target.value)} placeholder="WIPE" style={{ maxWidth: 160 }} aria-label="Type WIPE to confirm" />
+          <input type="text" value={wipe} onChange={(e) => setWipe(e.target.value)} placeholder="Type WIPE" style={{ maxWidth: 180 }} aria-label="Type WIPE to confirm" />
           <button
             className="btn danger"
             disabled={wipe !== 'WIPE'}
@@ -155,7 +149,7 @@ export default function Settings() {
               })()
             }}
           >
-            Wipe this device
+            <Icon name="trash" size={15} /> Wipe
           </button>
         </div>
       </section>

@@ -60,13 +60,7 @@ export function QuotaOrbit({ rings, total, centerLabel, centerSub }: QuotaOrbitP
     <figure className={`orbit${over ? ' is-over' : ''}`}>
       <div className="orbit-stage">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true" focusable="false">
-          <defs>
-            <radialGradient id="orbit-core" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" style={{ stopColor: 'var(--accent-2)', stopOpacity: 0.28 }} />
-              <stop offset="100%" style={{ stopColor: 'var(--accent-2)', stopOpacity: 0 }} />
-            </radialGradient>
-          </defs>
-          <circle cx={C} cy={C} r={OUTER + 14} fill="url(#orbit-core)" />
+          <circle cx={C} cy={C} r={OUTER + 14} fill="var(--surface)" />
           {model.map((r, i) => {
             const pathLen = 2 * Math.PI * r.radius
             const arcColor = r.color ?? 'var(--accent)'

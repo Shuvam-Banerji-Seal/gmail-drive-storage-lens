@@ -88,6 +88,7 @@ test.describe('demo airlock', () => {
 test.describe('live flow against a mocked Google', () => {
   test('setup wizard validates the client id', async ({ page }) => {
     await page.goto('/#/setup')
+    await page.getByRole('button', { name: /Step 5/ }).click()
     const input = page.getByPlaceholder(/apps.googleusercontent.com/)
     await input.fill('not-a-client-id')
     await expect(page.getByText('That does not look like a Client ID yet.')).toBeVisible()
@@ -98,6 +99,7 @@ test.describe('live flow against a mocked Google', () => {
   async function connectAndScan(page: import('@playwright/test').Page) {
     const calls = await mockGoogle(page)
     await page.goto('/#/setup')
+    await page.getByRole('button', { name: /Step 5/ }).click()
     await page.getByPlaceholder(/apps.googleusercontent.com/).fill(CLIENT_ID)
     await page.getByRole('button', { name: 'Sign in and test' }).click()
     await expect(page.getByText(/Gmail API reachable/)).toBeVisible()

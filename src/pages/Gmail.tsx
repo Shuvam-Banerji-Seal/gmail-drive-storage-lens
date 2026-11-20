@@ -9,11 +9,14 @@ import { anomalies, dailyBytes, monthlyByCluster, sankeyData } from '../analytic
 import { unsubscribeRadar } from '../analytics/unsub'
 import { BarList, CalendarHeatmap, ForceGraph, Heatmap, RaceBars, Sankey, Scatter, Stream, type BarRow, type ScatterPoint } from '../charts'
 import { go } from '../router'
+import { Icon } from '../components/Icon'
+import { Info } from '../components/Info'
+import { PageHeader, SectionHead } from '../components/PageHeader'
 import { toGmailItems, useClusters, useMsgIndex, useSafetyMap } from '../state/derived'
 import { deepScanParts } from '../state/session'
 import { useApp } from '../state/store'
 import type { BasketItem, GmailMsg, GraphData, Risk, SafetyResult } from '../types'
-import { formatBytes, formatDate, formatPct } from '../util/format'
+import { formatBytes, formatCount, formatDate, formatPct } from '../util/format'
 import type { EmbedRequest, EmbedResponse } from '../workers/embed.worker'
 
 const SEED = 42
@@ -50,13 +53,13 @@ export default function Gmail({ tab }: { tab?: string }) {
   const active = TABS.find((t) => t.id === tab) ?? TABS[0]
   const Body = BODIES[active.id]
   return (
-    <div className="stack" style={{ gap: 20 }}>
-      <header>
-        <h1>Gmail explorer</h1>
-        <p className="muted" style={{ margin: 0 }}>
-          Only metadata is read: sizes, senders, dates and labels. Message bodies are never fetched.
-        </p>
-      </header>
+    <div className="page">
+      <PageHeader
+        eyebrow="02 · Gmail"
+        title="Gmail explorer"
+        info="Only metadata is read: sizes, senders, dates and labels. Message bodies are never fetched."
+      />
+      <GmailStats />
       {focus && (
         <div className="row">
           <span className="chip ok">Focused: {focus}</span>
@@ -98,12 +101,7 @@ function titleOf(id: TabId): string {
 function Panel({ id, blurb, children }: { id: TabId; blurb: string; children: ReactNode }) {
   return (
     <section className="stack" style={{ gap: 14 }}>
-      <div>
-        <h2>{titleOf(id)}</h2>
-        <p className="muted" style={{ margin: 0 }}>
-          {blurb}
-        </p>
-      </div>
+      <SectionHead title={titleOf(id)} info={blurb} />
       {children}
     </section>
   )
@@ -218,9 +216,10 @@ function SendersTab() {
                   Add {addable.length} {plural(addable.length, 'email', 'emails')} to Airlock
                 </button>
               </div>
-              <p className="muted" style={{ fontSize: '0.85rem', margin: 0 }}>
-                Starred, sent and draft mail is never added. High-risk mail is skipped. Review everything in the Airlock first.
-              </p>
+              <div className="row muted" style={{ fontSize: '0.8rem', gap: 6 }}>
+                <Icon name="lock" size={14} /> Protected mail is skipped{' '}
+                <Info>Starred, sent and draft mail is never added. High-risk mail is skipped. Review everything in the Airlock first.</Info>
+              </div>
               <table className="data">
                 <caption className="sr-only">Largest messages from {selected.label}</caption>
                 <thead>
@@ -364,10 +363,11 @@ function ConstellationTab() {
             </section>
           </div>
           <section className="card">
-            <h3>Top 10 by PageRank</h3>
-            <p className="muted" style={{ marginTop: 0 }}>
-              PageRank counts how central a node is in the graph. The table is the text version of the constellation.
-            </p>
+            <SectionHead
+              as="h3"
+              title="Top 10 by PageRank"
+              info="PageRank counts how central a node is in the graph. The table is the text version of the constellation."
+            />
             <table className="data">
               <thead>
                 <tr>
@@ -515,10 +515,7 @@ function TidesTab() {
       </section>
       <div className="grid cols-2">
         <section className="card stack">
-          <h3 style={{ margin: 0 }}>Spike months</h3>
-          <p className="muted" style={{ margin: 0 }}>
-            Months whose total is far above the usual level (robust z-score above 3.5).
-          </p>
+          <SectionHead as="h3" title="Spike months" info="Months whose total is far above the usual level (robust z-score above 3.5)." />
           {spikes.length === 0 ? (
             <div className="empty">No unusual months found.</div>
           ) : (
@@ -846,7 +843,13 @@ function AttachmentsTab() {
     () =>
       dups.slice(0, DUP_ROWS).map((d) => ({
         ...d,
-        older: toGmailItems(d.messageIds.slice(1).map((id) => byId.get(id)).filter(isMsg), safetyMap),
+        older: toGmailItems(
+          d.messageIds
+            .slice(1)
+            .map((id) => byId.get(id))
+            .filter(isMsg),
+          safetyMap,
+        ),
       })),
     [dups, byId, safetyMap],
   )
@@ -874,18 +877,19 @@ function AttachmentsTab() {
       blurb="Attachment names, types and sizes, and which files were sent again and again. Attachment contents are never read."
     >
       <section className="card stack">
-        <p style={{ margin: 0 }}>
-          The deep scan is optional. It reads only the attachment structure of each email (file name, type and size) and never
-          downloads attachment content or message bodies. Without it, attachments stay unknown.
-        </p>
+        <div className="row" style={{ gap: 8 }}>
+          <Icon name="layers" size={18} /> <b>Optional deep scan</b>
+          <Info>
+            The deep scan is optional. It reads only the attachment structure of each email (file name, type and size) and never downloads
+            attachment content or message bodies. Without it, attachments stay unknown.
+          </Info>
+        </div>
         <div className="row between">
           <button type="button" className="btn primary" disabled={scanning || scanN === 0} onClick={runScan}>
             Deep-scan the {scanN} largest emails
           </button>
           <span className="muted mono-num" role="status" aria-live="polite" style={{ fontSize: '0.88rem' }}>
-            {scanning && progress
-              ? `Scanning… ${progress.done} of ${progress.total}`
-              : `${scanned} of ${scanN} scanned`}
+            {scanning && progress ? `Scanning… ${progress.done} of ${progress.total}` : `${scanned} of ${scanN} scanned`}
           </span>
         </div>
       </section>
@@ -910,8 +914,8 @@ function AttachmentsTab() {
             <section className="card stack">
               <h3 style={{ margin: 0 }}>Repeated copies</h3>
               <p className="muted" style={{ margin: 0 }}>
-                {dups.length} repeated {plural(dups.length, 'attachment', 'attachments')} · {formatBytes(wasted)} stored again. The
-                newest copy is kept.
+                {dups.length} repeated {plural(dups.length, 'attachment', 'attachments')} · {formatBytes(wasted)} stored again. The newest
+                copy is kept.
               </p>
               {dupRows.length === 0 ? (
                 <div className="empty">No attachment appears in two or more scanned emails.</div>
@@ -935,7 +939,12 @@ function AttachmentsTab() {
                         <td className="mono-num">{d.copies}</td>
                         <td className="mono-num">{formatBytes(d.wasted)}</td>
                         <td>
-                          <button type="button" className="btn sm" disabled={d.older.length === 0} onClick={() => addAirlock(d.older, 'emails')}>
+                          <button
+                            type="button"
+                            className="btn sm"
+                            disabled={d.older.length === 0}
+                            onClick={() => addAirlock(d.older, 'emails')}
+                          >
                             Add older copies to Airlock
                           </button>
                         </td>
@@ -1051,5 +1060,37 @@ function UnsubscribeTab() {
         </section>
       )}
     </Panel>
+  )
+}
+
+/** At-a-glance numbers computed from the scanned Gmail metadata. */
+function GmailStats() {
+  const gmail = useApp((s) => s.gmail)
+  const clusters = useClusters()
+  const st = useMemo(() => {
+    const bytes = gmail.reduce((a, m) => a + m.size, 0)
+    const lists = gmail.filter((m) => m.listId).length
+    const unread = gmail.filter((m) => m.labels.includes('UNREAD')).length
+    const largest = gmail.reduce((a, m) => Math.max(a, m.size), 0)
+    return { bytes, lists, unread, largest }
+  }, [gmail])
+  if (!gmail.length) return null
+  const tiles: Array<[string, string, string]> = [
+    ['Emails', formatCount(gmail.length), 'Large emails found by the scan'],
+    ['Size', formatBytes(st.bytes), 'Total size of the scanned emails'],
+    ['Senders', formatCount(clusters.length), 'Distinct senders and mailing lists after merging look-alike addresses'],
+    ['From lists', `${Math.round((st.lists / gmail.length) * 100)}%`, 'Share of scanned emails sent through a mailing list'],
+    ['Unread', `${Math.round((st.unread / gmail.length) * 100)}%`, 'Share of scanned emails still unread'],
+    ['Largest', formatBytes(st.largest), 'Size of the single largest email'],
+  ]
+  return (
+    <div className="grid cols-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))' }}>
+      {tiles.map(([k, v, tip]) => (
+        <div key={k} className="kpi" data-tip={tip}>
+          <div className="top">{k}</div>
+          <span className="v">{v}</span>
+        </div>
+      ))}
+    </div>
   )
 }

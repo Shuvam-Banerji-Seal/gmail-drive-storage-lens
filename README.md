@@ -151,6 +151,7 @@ All screenshots use the built-in synthetic demo data (nothing real).
 | ![Subject nebula with lasso selection](docs/screenshots/gmail-nebula.png) | ![Mailfall calendar heatmap](docs/screenshots/gmail-mailfall.png) |
 | ![Drive folder treemap](docs/screenshots/drive-continents.png) | ![Budget planner](docs/screenshots/planner.png) |
 | ![Airlock dry run](docs/screenshots/airlock.png) | ![Verify privacy page](docs/screenshots/verify.png) |
+| ![Insights: domain chords](docs/screenshots/insights.png) | ![Phone layout, Paper theme](docs/screenshots/mobile-overview.png) |
 
 ## Licence
 

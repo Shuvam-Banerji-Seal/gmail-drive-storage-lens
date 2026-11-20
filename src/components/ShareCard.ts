@@ -8,10 +8,7 @@ export async function renderShareCard(totals: { bytes: number; items: number; ac
   c.height = 630
   const ctx = c.getContext('2d')
   if (!ctx) return null
-  const g = ctx.createLinearGradient(0, 0, 1200, 630)
-  g.addColorStop(0, '#080a14')
-  g.addColorStop(1, '#1b1240')
-  ctx.fillStyle = g
+  ctx.fillStyle = '#0a0e19'
   ctx.fillRect(0, 0, 1200, 630)
   let seed = 7
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
@@ -23,14 +20,14 @@ export async function renderShareCard(totals: { bytes: number; items: number; ac
     ctx.fill()
   }
   ctx.globalAlpha = 1
-  ctx.strokeStyle = '#8b7bff'
+  ctx.strokeStyle = '#7cb4ff'
   ctx.lineWidth = 3
   for (const r of [150, 200, 250]) {
     ctx.beginPath()
     ctx.arc(960, 315, r, Math.PI * 0.2, Math.PI * 1.6)
     ctx.stroke()
   }
-  ctx.fillStyle = '#5ef2c1'
+  ctx.fillStyle = '#e8b552'
   ctx.font = 'bold 34px system-ui, sans-serif'
   ctx.fillText('GMAIL STORAGE LENS', 80, 120)
   ctx.fillStyle = '#e9ecfb'

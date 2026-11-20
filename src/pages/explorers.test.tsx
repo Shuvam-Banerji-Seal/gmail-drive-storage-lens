@@ -89,8 +89,9 @@ describe('Drive explorer tabs', () => {
 
   it('shows the header stats', () => {
     render(<Drive tab="twins" />)
-    expect(screen.getByText('files scanned')).toBeInTheDocument()
-    expect(screen.getByText('trashed bytes still counted')).toBeInTheDocument()
+    expect(screen.getByText('Items')).toBeInTheDocument()
+    expect(screen.getByText('In Trash')).toBeInTheDocument()
+    expect(screen.getByText('Shared with you')).toBeInTheDocument()
   })
 })
 

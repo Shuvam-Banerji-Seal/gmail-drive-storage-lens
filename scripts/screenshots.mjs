@@ -8,7 +8,7 @@ const OUT = process.argv[2] ?? 'docs/screenshots'
 mkdirSync(OUT, { recursive: true })
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: 'reduce' })
-await page.addInitScript(() => localStorage.setItem('gsl.settings.v1', JSON.stringify({ tourDone: true })))
+await page.addInitScript(() => localStorage.setItem('gsl.settings.v1', JSON.stringify({ tourDone: true, theme: 'dark' })))
 await page.goto(BASE)
 await page.screenshot({ path: `${OUT}/landing.png` })
 await page.getByRole('button', { name: /Explore the demo/ }).click()
