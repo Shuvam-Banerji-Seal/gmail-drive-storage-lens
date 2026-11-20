@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// English strings. Flat keys so other locales can be registered with the same shape. {name} marks a variable.
+export const messages = {
+  'app.name': 'Storage Lens',
+  'app.skip': 'Skip to content',
+  'app.jump': 'to jump anywhere',
+  'app.loading': 'Loading view…',
+  'app.selected': 'Selected {count} · {bytes}',
+  'app.leaveDemo': 'Leave demo',
+  'app.signOut': 'Sign out',
+  'app.modeDemo': 'Demo data',
+  'app.modeLive': 'Connected',
+  'app.modeLanding': 'Not connected',
+
+  'nav.main': 'Main',
+  'nav.overview': 'Overview',
+  'nav.gmail': 'Gmail',
+  'nav.drive': 'Drive',
+  'nav.planner': 'Planner',
+  'nav.insights': 'Insights',
+  'nav.airlock': 'Airlock',
+  'nav.verify': 'Verify privacy',
+  'nav.settings': 'Settings',
+
+  'page.overview': 'Overview',
+  'page.gmail': 'Gmail explorer',
+  'page.drive': 'Drive explorer',
+  'page.planner': 'Budget planner',
+  'page.insights': 'Insights',
+  'page.airlock': 'Airlock',
+  'page.verify': 'Verify privacy',
+  'page.settings': 'Settings',
+  'page.setup': 'Connect your own Google client',
+  'page.home': 'see what fills your Gmail & Google Drive storage',
+
+  'title.app': '{page} · {app}',
+  'title.home': '{app} — {page}',
+
+  'common.close': 'Close',
+  'common.back': 'Back',
+  'common.next': 'Next',
+  'common.skip': 'Skip',
+  'common.finish': 'Finish',
+  'common.empty': 'Nothing here yet.',
+
+  'tour.label': 'Guided tour',
+  'tour.step': 'Step {current} of {total}',
+  'tour.escHint': 'Esc skips the tour',
+  'tour.overview.title': 'Your storage orbit',
+  'tour.overview.body': 'Each ring is a service and its fill is how much of your quota it uses. Start here for the big picture.',
+  'tour.gmail.title': 'Gmail explorer',
+  'tour.gmail.body': 'Senders, constellations, rivers and tides show where mail bytes come from and how they build up over time.',
+  'tour.planner.title': 'Budget planner',
+  'tour.planner.body': 'Set a cap and see when you would reach it at the current pace.',
+  'tour.airlock.title': 'Airlock',
+  'tour.airlock.body': 'Review a dry run of any cleanup, then confirm by typing. Nothing is removed without that step.',
+  'tour.verify.title': 'Verify privacy',
+  'tour.verify.body':
+    'The network log and content security policy show every request this page makes, so you can check the claims yourself.',
+}
+export type MessageKey = keyof typeof messages

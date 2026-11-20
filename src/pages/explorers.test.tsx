@@ -89,7 +89,23 @@ describe('Drive explorer tabs', () => {
 
   it('shows the header stats', () => {
     render(<Drive tab="twins" />)
-    expect(screen.getByText('files scanned')).toBeInTheDocument()
-    expect(screen.getByText('trashed bytes still counted')).toBeInTheDocument()
+    expect(screen.getByText('Items')).toBeInTheDocument()
+    expect(screen.getByText('In Trash')).toBeInTheDocument()
+    expect(screen.getByText('Shared with you')).toBeInTheDocument()
+  })
+})
+
+describe('Gmail attachments tab', () => {
+  it('renders the attachments tab with its heading and the optional deep-scan button', () => {
+    render(<Gmail tab="attachments" />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Attachments: types and duplicate copies' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Deep-scan the \d+ largest emails/ })).toBeInTheDocument()
+  })
+
+  it('shows the type breakdown after a deep scan in demo mode', async () => {
+    render(<Gmail tab="attachments" />)
+    fireEvent.click(screen.getByRole('button', { name: /Deep-scan the \d+ largest emails/ }))
+    expect(await screen.findByText('Images', {}, { timeout: 3000 })).toBeInTheDocument()
+    expect(screen.getByRole('list', { name: 'Ranked by size' })).toBeInTheDocument()
   })
 })

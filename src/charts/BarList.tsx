@@ -27,10 +27,12 @@ export function BarList({ rows, onClick, max }: BarListProps) {
       rows
         .filter((r) => Number.isFinite(r.value) && r.value >= 0)
         .slice()
-        .sort((a, b) => b.value - a.value),
-    [rows],
+        .sort((a, b) => b.value - a.value)
+        .slice(0, max !== undefined && max > 0 ? max : undefined),
+    [rows, max],
   )
-  const top = max !== undefined && max > 0 ? max : sorted.reduce((m, r) => Math.max(m, r.value), 0)
+  // `max` limits how many rows are shown; bar lengths are relative to the largest shown value.
+  const top = sorted.reduce((m, r) => Math.max(m, r.value), 0)
 
   if (sorted.length === 0) return <p className="muted">Nothing ranked yet.</p>
 

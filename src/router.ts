@@ -2,8 +2,8 @@
 // Hash routing: works on GitHub Pages without server rewrites.
 import { useSyncExternalStore } from 'react'
 
-export type Route = 'home' | 'setup' | 'overview' | 'gmail' | 'drive' | 'planner' | 'cleanup' | 'verify' | 'settings'
-const ROUTES: Route[] = ['home', 'setup', 'overview', 'gmail', 'drive', 'planner', 'cleanup', 'verify', 'settings']
+export type Route = 'home' | 'setup' | 'overview' | 'gmail' | 'drive' | 'planner' | 'insights' | 'cleanup' | 'verify' | 'settings'
+const ROUTES: Route[] = ['home', 'setup', 'overview', 'gmail', 'drive', 'planner', 'insights', 'cleanup', 'verify', 'settings']
 
 export function parseHash(hash: string): { route: Route; tab?: string } {
   const [r, tab] = hash.replace(/^#\/?/, '').split('/')
@@ -15,7 +15,11 @@ const subscribe = (cb: () => void) => {
   return () => window.removeEventListener('hashchange', cb)
 }
 export function useRoute() {
-  const hash = useSyncExternalStore(subscribe, () => window.location.hash, () => '')
+  const hash = useSyncExternalStore(
+    subscribe,
+    () => window.location.hash,
+    () => '',
+  )
   return parseHash(hash)
 }
 export function go(route: Route, tab?: string) {

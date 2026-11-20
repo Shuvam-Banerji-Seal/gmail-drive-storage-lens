@@ -8,6 +8,7 @@ const OUT = process.argv[2] ?? 'docs/screenshots'
 mkdirSync(OUT, { recursive: true })
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: 'reduce' })
+await page.addInitScript(() => localStorage.setItem('gsl.settings.v1', JSON.stringify({ tourDone: true, theme: 'dark' })))
 await page.goto(BASE)
 await page.screenshot({ path: `${OUT}/landing.png` })
 await page.getByRole('button', { name: /Explore the demo/ }).click()
@@ -25,6 +26,7 @@ const shots = [
   ['drive-twins', '#/drive/twins'],
   ['drive-sharing', '#/drive/sharing'],
   ['planner', '#/planner'],
+  ['insights', '#/insights'],
   ['verify', '#/verify'],
   ['setup', '#/setup'],
 ]
@@ -38,6 +40,15 @@ await page.locator('.barlist button').first().click()
 await page.evaluate(() => (window.location.hash = '#/cleanup'))
 await page.waitForTimeout(700)
 await page.screenshot({ path: `${OUT}/airlock.png` })
+await page.evaluate(() => (window.location.hash = '#/gmail/attachments'))
+await page.getByRole('button', { name: /Deep-scan/ }).click()
+await page.waitForTimeout(2500)
+await page.screenshot({ path: `${OUT}/gmail-attachments.png` })
+await page.evaluate(() => (window.location.hash = '#/gmail/tides'))
+await page.waitForTimeout(600)
+await page.getByRole('tab', { name: 'Time machine' }).click()
+await page.waitForTimeout(600)
+await page.screenshot({ path: `${OUT}/gmail-time-machine.png` })
 await page.evaluate(() => (document.documentElement.dataset.theme = 'light'))
 await page.evaluate(() => (window.location.hash = '#/overview'))
 await page.waitForTimeout(800)

@@ -2,6 +2,17 @@
 
 You do not need to trust the project's word for what the app does. This page explains how to check the deployed site, how to confirm that a build came from a specific commit, and how the network rules are enforced.
 
+## 0. Use the Verify privacy page in the app
+
+The **Verify privacy** page is the quickest check. It shows:
+
+- **Network map:** every request this tab has made, by destination, with a probe that tries to reach a non-Google host. The policy should block it.
+- **Enforced policy:** the Content-Security-Policy the browser is enforcing right now. Its `connect-src` is the network allowlist.
+- **Build provenance:** the commit the page was built from, with a link to the source and the `gh attestation verify` command.
+- **What is stored on this device:** the local records the app keeps, and how to remove them.
+
+The sections below show how to check the same things outside the app.
+
 ## 1. Check the Content-Security-Policy in the live page
 
 The production build injects a Content-Security-Policy meta tag into the page.
@@ -59,7 +70,7 @@ Each deployment is built by the **Deploy to GitHub Pages** workflow and receives
 
    A successful check reports that the attestation was verified and names the repository and workflow that produced it.
 
-3. To check a specific commit, look at the attestation's details (or the workflow run for the deployment) and confirm the commit SHA matches the one you expect. The build embeds the commit SHA in the `VITE_COMMIT` value, so you can also compare it with the commit shown in the app's information panel once that is available (planned).
+3. To check a specific commit, look at the attestation's details (or the workflow run for the deployment) and confirm the commit SHA matches the one you expect. The build embeds the commit SHA in the `VITE_COMMIT` value, so you can also compare it with the commit shown in the Build provenance section of the app's **Verify privacy** page.
 
 4. To check an asset, download it the same way from `assets/` and run `gh attestation verify` on it.
 
@@ -108,6 +119,16 @@ npm run check:licenses
 ```
 
 This fails if a dependency uses a licence that is not compatible with AGPL-3.0-or-later. CI runs it too.
+
+## 7. Check a real account (read-only)
+
+Maintainers and contributors can run a read-only check against a real account with `scripts/live-check.ts`. It sends only GET requests and refuses any other method. Supply short-lived access tokens from your own OAuth client:
+
+```bash
+GMAIL_TOKEN=... DRIVE_TOKEN=... npm run live-check
+```
+
+Never paste tokens into issues, pull requests, or logs.
 
 ## What verification does not prove
 

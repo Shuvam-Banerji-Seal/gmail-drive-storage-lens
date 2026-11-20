@@ -1,8 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react'
-import { buildDriveTree, coldFiles, findDuplicates, keepRule, publicLinks, revisionBloat, shareGraph, trashedBytes } from '../analytics/drive'
+import {
+  buildDriveTree,
+  coldFiles,
+  findDuplicates,
+  keepRule,
+  publicLinks,
+  revisionBloat,
+  shareGraph,
+  trashedBytes,
+} from '../analytics/drive'
 import { ForceGraph, Sunburst, Treemap } from '../charts'
 import { go } from '../router'
+import { PageHeader, SectionHead } from '../components/PageHeader'
 import { pruneRevisions } from '../state/session'
 import { useApp } from '../state/store'
 import type { BasketItem, DriveFile, TreeNode } from '../types'
@@ -50,32 +60,29 @@ export default function Drive({ tab }: { tab?: string }) {
   const trashed = useMemo(() => trashedBytes(drive), [drive])
 
   return (
-    <div className="stack" style={{ gap: 20 }}>
-      <header>
-        <h1>Drive explorer</h1>
-        <p className="muted" style={{ margin: 0 }}>
-          Metadata only: names, sizes, checksums and sharing settings. File contents are never downloaded.
-        </p>
-      </header>
+    <div className="page">
+      <PageHeader
+        eyebrow="03 · Drive"
+        title="Drive explorer"
+        info="Metadata only: names, sizes, checksums and sharing settings. File contents are never downloaded."
+      />
 
-      <div className="grid cols-3">
-        <div className="card">
-          <div className="stat">
-            <span className="v">{formatCount(scanned)}</span>
-            <span className="k">files scanned</span>
-          </div>
+      <div className="grid cols-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))' }}>
+        <div className="kpi" data-tip="Files and folders listed by the Drive API">
+          <div className="top">Items</div>
+          <span className="v">{formatCount(scanned)}</span>
         </div>
-        <div className="card">
-          <div className="stat">
-            <span className="v">{formatBytes(ownedQuota)}</span>
-            <span className="k">quota used by files you own</span>
-          </div>
+        <div className="kpi" data-tip="Quota used by files you own, including pinned old versions">
+          <div className="top">Your files</div>
+          <span className="v">{formatBytes(ownedQuota)}</span>
         </div>
-        <div className="card">
-          <div className="stat">
-            <span className="v">{formatBytes(trashed)}</span>
-            <span className="k">trashed bytes still counted</span>
-          </div>
+        <div className="kpi" data-tip="Trashed files still count until Trash is emptied">
+          <div className="top">In Trash</div>
+          <span className="v">{formatBytes(trashed)}</span>
+        </div>
+        <div className="kpi" data-tip="Files shared with you: they use the owner's quota, not yours">
+          <div className="top">Shared with you</div>
+          <span className="v">{formatCount(drive.filter((f) => !f.owned).length)}</span>
         </div>
       </div>
 
@@ -96,12 +103,7 @@ export default function Drive({ tab }: { tab?: string }) {
 function Panel({ title, blurb, children }: { title: string; blurb: string; children: ReactNode }) {
   return (
     <section className="stack" style={{ gap: 14 }}>
-      <div>
-        <h2>{title}</h2>
-        <p className="muted" style={{ margin: 0 }}>
-          {blurb}
-        </p>
-      </div>
+      <SectionHead title={title} info={blurb} />
       {children}
     </section>
   )
@@ -147,7 +149,10 @@ function ContinentsTab() {
   }
 
   return (
-    <Panel title={titleOf('continents')} blurb="Your Drive as land: each block is a folder or file, sized by its storage. Click a block to read its name and size.">
+    <Panel
+      title={titleOf('continents')}
+      blurb="Your Drive as land: each block is a folder or file, sized by its storage. Click a block to read its name and size."
+    >
       <div className="row">
         <div className="tabs" role="tablist" aria-label="Chart style">
           <button type="button" role="tab" aria-selected={view === 'treemap'} onClick={() => setView('treemap')}>
@@ -221,7 +226,10 @@ function TwinsTab() {
   }
 
   return (
-    <Panel title={titleOf('twins')} blurb="Files with identical contents, found by checksum. Choose which copy to keep; the rest can go to the Airlock.">
+    <Panel
+      title={titleOf('twins')}
+      blurb="Files with identical contents, found by checksum. Choose which copy to keep; the rest can go to the Airlock."
+    >
       <div className="row between">
         <label className="row" style={{ gap: 8 }}>
           <span>Rule</span>
@@ -269,7 +277,9 @@ function TwinsTab() {
               ))}
             </tbody>
           </table>
-          {plans.length > 100 && <p className="muted">Showing the first 100 of {plans.length} groups. The total button covers all of them.</p>}
+          {plans.length > 100 && (
+            <p className="muted">Showing the first 100 of {plans.length} groups. The total button covers all of them.</p>
+          )}
         </section>
       )}
     </Panel>
@@ -373,7 +383,10 @@ function ColdTab() {
   }
 
   return (
-    <Panel title={titleOf('cold')} blurb="Files of 10 MiB or more that nobody has opened, or changed, for two years. Tick the ones you no longer need.">
+    <Panel
+      title={titleOf('cold')}
+      blurb="Files of 10 MiB or more that nobody has opened, or changed, for two years. Tick the ones you no longer need."
+    >
       <div className="row between">
         <span className="muted">
           {rows.length} {plural(rows.length, 'file', 'files')} · {formatBytes(rows.reduce((s, f) => s + bytesOf(f), 0))}

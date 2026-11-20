@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { go, type Route } from '../router'
 import { useApp } from '../state/store'
+import { restartTour } from './Tour'
 
 interface Cmd {
   id: string
@@ -29,6 +30,8 @@ export function CommandPalette() {
       nav('gmail', 'Gmail: mailfall calendar', 'mailfall'),
       nav('gmail', 'Gmail: subject nebula', 'nebula'),
       nav('gmail', 'Gmail: repeated attachments', 'repeats'),
+      nav('gmail', 'Gmail: attachments (deep scan)', 'attachments'),
+      nav('gmail', 'Gmail: time machine', 'tides'),
       nav('gmail', 'Gmail: unsubscribe radar', 'unsubscribe'),
       nav('drive', 'Drive: folder continents', 'continents'),
       nav('drive', 'Drive: twins (duplicates)', 'twins'),
@@ -37,11 +40,24 @@ export function CommandPalette() {
       nav('drive', 'Drive: public links audit', 'public'),
       nav('drive', 'Drive: sharing graph', 'sharing'),
       nav('planner', 'Budget planner'),
+      nav('insights', 'Insights: domain chords'),
       nav('cleanup', 'Airlock: review & clean'),
       nav('verify', 'Verify privacy: network log & CSP'),
       nav('settings', 'Settings'),
+      {
+        id: 'tour',
+        label: 'Restart the guided tour',
+        run: () => {
+          restartTour()
+          go('overview')
+        },
+      },
       nav('setup', 'Connect your own Google client'),
-      { id: 'theme', label: `Theme: switch (now ${theme})`, run: () => setSettings({ theme: theme === 'dark' ? 'light' : theme === 'light' ? 'contrast' : 'dark' }) },
+      {
+        id: 'theme',
+        label: `Theme: switch (now ${theme})`,
+        run: () => setSettings({ theme: theme === 'dark' ? 'light' : theme === 'light' ? 'contrast' : 'dark' }),
+      },
     ]
   }, [theme, setSettings])
 
@@ -90,7 +106,14 @@ export function CommandPalette() {
         />
         <ul role="listbox" aria-label="Commands">
           {list.map((c, i) => (
-            <li key={c.id} role="option" aria-selected={i === idx} className={i === idx ? 'active' : ''} onMouseEnter={() => setIdx(i)} onClick={() => run(c)}>
+            <li
+              key={c.id}
+              role="option"
+              aria-selected={i === idx}
+              className={i === idx ? 'active' : ''}
+              onMouseEnter={() => setIdx(i)}
+              onClick={() => run(c)}
+            >
               <span>{c.label}</span>
               {c.hint && <kbd>{c.hint}</kbd>}
             </li>

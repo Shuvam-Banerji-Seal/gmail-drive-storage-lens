@@ -1,15 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gmail Storage Lens logo">
   <title>Gmail Storage Lens</title>
-  <rect width="512" height="512" rx="112" fill="#080a14"/>
-  <!-- orbit ring -->
-  <ellipse cx="256" cy="256" rx="188" ry="74" fill="none" stroke="#5ef2c1" stroke-width="14" transform="rotate(-24 256 256)" opacity="0.9"/>
-  <!-- lens -->
-  <circle cx="256" cy="256" r="112" fill="none" stroke="#8b7bff" stroke-width="22"/>
-  <circle cx="256" cy="256" r="46" fill="#8b7bff"/>
-  <!-- orbiting body -->
-  <circle cx="402" cy="194" r="26" fill="#5ef2c1"/>
-  <!-- stars -->
-  <circle cx="110" cy="128" r="8" fill="#5ef2c1" opacity="0.7"/>
-  <circle cx="132" cy="402" r="6" fill="#8b7bff" opacity="0.7"/>
-  <circle cx="392" cy="392" r="7" fill="#5ef2c1" opacity="0.5"/>
+  <rect width="512" height="512" rx="112" fill="#0a0e19"/>
+  <ellipse cx="226" cy="226" rx="200" ry="70" fill="none" stroke="#e9edf7" stroke-width="10" opacity="0.5" transform="rotate(-24 226 226)"/>
+  <circle cx="226" cy="226" r="148" fill="none" stroke="#e8b552" stroke-width="34"/>
+  <circle cx="226" cy="226" r="34" fill="#e8b552"/>
+  <path d="M338 338l110 110" stroke="#e8b552" stroke-width="48" stroke-linecap="round"/>
 </svg>

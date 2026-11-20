@@ -531,7 +531,11 @@ function buildLabelCounts(gmail: GmailMsg[]): DemoLabelCount[] {
       messagesTotal: withLabel.length,
       messagesUnread: withLabel.filter((m) => m.labels.includes('UNREAD')).length,
     }
-  })
+  }).concat([
+    // Trash and Spam are not part of the scanned set, but still count toward storage until emptied.
+    { id: 'TRASH', name: 'TRASH', messagesTotal: 214, messagesUnread: 0 },
+    { id: 'SPAM', name: 'SPAM', messagesTotal: 87, messagesUnread: 87 },
+  ])
 }
 
 /**

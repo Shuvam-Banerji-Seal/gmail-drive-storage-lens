@@ -29,3 +29,4 @@ test-results
 *.pem
 client_secret*.json
 token*.json
+lighthouse-report

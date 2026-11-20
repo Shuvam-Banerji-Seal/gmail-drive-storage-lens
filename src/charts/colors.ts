@@ -41,7 +41,7 @@ export interface CanvasPalette {
   series: string[]
 }
 
-const FALLBACK_SERIES = ['#5ef2c1', '#8b7bff', '#ff6b8b', '#ffc857', '#5cc8ff', '#ff9f5c', '#c58bff', '#9be15d']
+const FALLBACK_SERIES = ['#e8b552', '#7cb4ff', '#5fd6b0', '#ff8a73', '#54c6e0', '#f290bd', '#a9d46f', '#d9c294']
 
 export function readPalette(): CanvasPalette {
   const series = FALLBACK_SERIES.map((fallback, i) => readCssVar(`--series-${i + 1}`, fallback))

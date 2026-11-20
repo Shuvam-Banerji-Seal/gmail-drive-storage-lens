@@ -79,7 +79,7 @@ Choose **Save**. These details are shown on the sign-in screen only to you.
 ## Step 5: Connect the app
 
 1. Open the app (the live site, or `http://localhost:5173` for development).
-2. Paste the Client ID into the setup field.
+2. Paste the Client ID into the setup wizard. The wizard checks its format and runs a connection test, and shows a plain-language fix for any check that fails. You can also open a pre-filled setup link (`#/setup/<your Client ID>`) from the wizard.
 3. Sign in with the Google account you added as a test user.
 4. When Google asks for permissions, read them and accept only if you are comfortable with them. See [scopes.md](scopes.md) for what each permission is used for.
 
@@ -109,4 +109,4 @@ If your problem is not listed, open an issue with the `setup-guide` label and in
 
 - To revoke the app's access to your account, visit https://myaccount.google.com/permissions and remove the app.
 - To delete the client, open the **Clients** page in your Google Cloud project and delete it. This stops the app from signing in with it.
-- To remove the Client ID from the app, use sign-out or clear the site data in your browser.
+- To remove the Client ID and every saved scan from the app, use **Wipe this device** in Settings. You can also clear the site data in your browser.
