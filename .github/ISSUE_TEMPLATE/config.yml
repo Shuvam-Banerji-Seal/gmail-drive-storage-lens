@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and discussion
+    url: https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/discussions
+    about: Ask how-to questions, share ideas, or get help setting up the app.
+  - name: Security vulnerability
+    url: https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/security/policy
+    about: Report security problems privately. Do not open a public issue for them.
+  - name: Google sign-in setup guide
+    url: https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/blob/main/docs/oauth-setup.md
+    about: Step-by-step help for creating your own Google OAuth client and fixing common errors.

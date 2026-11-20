@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to find large emails in Gmail | Gmail Storage Lens</title>
+  <meta name="description" content="Use Gmail search operators such as larger:, has:attachment, older_than: and in:anywhere to find the biggest emails, then empty Trash and Spam to free space.">
+  <link rel="canonical" href="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/guides/find-large-emails-gmail.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Gmail Storage Lens">
+  <meta property="og:title" content="How to find large emails in Gmail">
+  <meta property="og:description" content="Gmail search operators for finding the biggest emails and attachments, and how to empty Trash and Spam.">
+  <meta property="og:url" content="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/guides/find-large-emails-gmail.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="How to find large emails in Gmail">
+  <meta name="twitter:description" content="Gmail search operators for finding the biggest emails and attachments, and how to empty Trash and Spam.">
+  <link rel="stylesheet" href="guide.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to find large emails in Gmail",
+    "description": "Use Gmail search operators such as larger:, has:attachment, older_than: and in:anywhere to find the biggest emails, then empty Trash and Spam to free space.",
+    "url": "https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/guides/find-large-emails-gmail.html",
+    "dateModified": "2026-11-20",
+    "inLanguage": "en",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Gmail Storage Lens",
+      "url": "https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <nav aria-label="Site">
+        <ul>
+          <li><a class="brand" href="../">Gmail Storage Lens</a></li>
+          <li><a href="../">Open the app</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <article>
+      <h1>How to find large emails in Gmail</h1>
+      <p class="meta">Guide &middot; last updated 20 November 2026</p>
+      <p class="lede">Gmail's search box understands operators that filter by size, attachment type, age, and location. Combined, they let you find the emails taking the most space without opening every message.</p>
+
+      <h2>Why large emails matter</h2>
+      <p>Gmail counts the size of each message, including its attachments, toward your storage. A few large messages can use more space than thousands of short ones. Photos, presentations, and scanned documents sent to a group are common causes, and a single reply chain can repeat the same attachment many times.</p>
+
+      <h2>The size operators</h2>
+      <p>Gmail's size operators filter messages by how large they are:</p>
+      <table>
+        <thead>
+          <tr><th scope="col">Operator</th><th scope="col">What it finds</th><th scope="col">Example</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>larger:</code></td><td>Messages bigger than a size</td><td><code>larger:10M</code></td></tr>
+          <tr><td><code>smaller:</code></td><td>Messages smaller than a size</td><td><code>smaller:100K</code></td></tr>
+          <tr><td><code>size:</code></td><td>Messages around a given size in bytes</td><td><code>size:5000000</code></td></tr>
+        </tbody>
+      </table>
+      <p>Gmail accepts units such as <code>K</code> for kilobytes and <code>M</code> for megabytes. Treat the results as a guide: Gmail's size values are approximate, and a message's displayed size can differ slightly from the figure the operator uses.</p>
+
+      <h2>Narrow the search with attachment and age operators</h2>
+      <p>These operators help you focus on the messages that are most likely to be worth removing:</p>
+      <ul>
+        <li><code>has:attachment</code> finds messages that carry an attachment.</li>
+        <li><code>filename:pdf</code> or <code>filename:jpg</code> finds attachments with a given file name extension.</li>
+        <li><code>older_than:2y</code> finds messages older than two years. You can also use <code>older_than:1y</code>, <code>older_than:6m</code>, or <code>older_than:30d</code>.</li>
+        <li><code>newer_than:</code> does the opposite, for messages within a recent period.</li>
+        <li><code>is:unread</code> finds unread messages, which can help you spot mail you have never opened.</li>
+        <li><code>category:promotions</code> finds messages Gmail has filed under Promotions. Other categories include social, updates, and forums.</li>
+      </ul>
+      <p>Operators combine with a space between them. For example, <code>has:attachment larger:5M older_than:2y</code> finds older messages with attachments over five megabytes.</p>
+
+      <h2>Search by sender or mailing list</h2>
+      <p>To see whether one sender is responsible for a lot of space, search with <code>from:</code>. For example, <code>from:updates larger:2M</code> shows large messages from senders whose address contains the word updates. For mailing lists, <code>list:</code> matches the list identifier that many lists include in their messages.</p>
+
+      <h2>Include Trash, Spam, and everything else</h2>
+      <p>By default, Gmail's search leaves out some folders. Add <code>in:anywhere</code> to search across all folders, including Trash and Spam. To look only at one folder, use <code>in:trash</code> or <code>in:spam</code>. Items in these folders still count toward your storage, so they are worth checking.</p>
+
+      <div class="callout">
+        <p><strong>Check before you delete.</strong> Open a few results before you select them. Search results can include messages you want to keep, such as tax documents, contracts, and photos of people you know.</p>
+      </div>
+
+      <h2>Empty Trash and Spam</h2>
+      <p>Deleting a message moves it to Trash. Trash and Spam keep messages for a limited period, which Google has described as 30 days, after which Gmail removes them automatically. To free space sooner, open the folder and use its option to empty it. Make sure nothing you need is in the folder first, because emptying is permanent.</p>
+
+      <h2>Work in small groups</h2>
+      <ol class="steps">
+        <li>Search with a size operator, and add one narrowing operator.</li>
+        <li>Scan the results. Open anything unclear.</li>
+        <li>Select the group you are sure about, and move it to Trash.</li>
+        <li>Repeat with a different search.</li>
+      </ol>
+      <p>Keeping each batch small makes it easier to recover from a mistake while the messages are still in Trash.</p>
+
+      <h2>Checking the result</h2>
+      <p>After you clean up, storage totals can take time to update. Check your Google account's storage page later. If you want a single view of which senders and mailing lists use the most space, Gmail Storage Lens is an open-source project that does this in your browser. It reads message headers, sizes, and labels only, and sends data only to Google. Its features are still being built, so check the project's status page before relying on them.</p>
+
+      <div class="related">
+        <h2>More guides</h2>
+        <ul>
+          <li><a href="free-up-gmail-storage.html">How to free up Gmail storage safely</a></li>
+          <li><a href="why-google-storage-full.html">Why your Google storage is full</a></li>
+          <li><a href="delete-duplicate-files-google-drive.html">Delete duplicate files in Google Drive</a></li>
+          <li><a href="create-google-oauth-client-id.html">Create a Google OAuth client ID</a></li>
+        </ul>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Gmail Storage Lens is free software licensed under AGPL-3.0-or-later. <a href="../">Open the app</a> &middot; <a href="https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens">Source code</a></p>
+      <p><strong>Disclaimer:</strong> This guide is general information, not legal, tax, or professional advice. Google's features, limits, and screens change over time, so check Google's current help pages. Gmail Storage Lens is not affiliated with or endorsed by Google. Gmail and Google Drive are trademarks of Google LLC.</p>
+    </div>
+  </footer>
+</body>
+</html>

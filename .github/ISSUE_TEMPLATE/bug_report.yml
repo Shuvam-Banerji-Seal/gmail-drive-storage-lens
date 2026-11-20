@@ -1,0 +1,100 @@
+name: Bug report
+description: Report something that does not work as described in the documentation.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Before you start, please check the [troubleshooting table](https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/blob/main/docs/oauth-setup.md#troubleshooting).
+
+        **Do not paste your Client ID, tokens, email addresses, message contents, or file names.** If you need to show an error, redact personal details first.
+
+        For security problems, do not use this form. Follow the [security policy](https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/security/policy).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the app is affected?
+      options:
+        - Sign-in and OAuth setup
+        - Gmail explorer
+        - Drive explorer
+        - Cleanup and deletion
+        - Charts and visualisation
+        - Accessibility
+        - Documentation
+        - Build, CI, or deployment
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps that reproduce the problem from a fresh page load.
+      placeholder: |
+        1. Open the app
+        2. Paste the Client ID
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message or console output
+      description: Copy the exact text. Redact any email address, Client ID, or token.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: The version shown in the repository, or the commit hash if you use the live site (the footer or the build information shows it).
+      placeholder: "0.1.0 or a commit hash"
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Where are you running it?
+      options:
+        - Live site (GitHub Pages)
+        - Local development (npm run dev)
+        - Production build served locally (npm run preview)
+        - My own fork or deployment
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: "for example Firefox 140 on Linux, Chrome 150 on Windows"
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and discussions and did not find a duplicate.
+          required: true
+        - label: I removed personal data (Client ID, tokens, email addresses, message or file contents) from this report.
+          required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots (with personal data removed), network details, or anything else that might help.

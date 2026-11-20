@@ -1,0 +1,24 @@
+{
+  "name": "Gmail Storage Lens",
+  "short_name": "Storage Lens",
+  "description": "Open-source, browser-only Gmail and Google Drive storage analyzer and cleaner. Bring your own OAuth client; no data is collected.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#080a14",
+  "background_color": "#080a14",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

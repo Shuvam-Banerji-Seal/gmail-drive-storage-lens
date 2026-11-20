@@ -1,0 +1,46 @@
+# Label catalogue for the repository. Apply with a label-sync tool or by hand.
+- name: bug
+  color: "d73a4a"
+  description: Something does not work as documented.
+- name: enhancement
+  color: "a2eeef"
+  description: A new feature or an improvement to an existing one.
+- name: documentation
+  color: "0075ca"
+  description: Improvements or additions to documentation, the wiki, or the guides.
+- name: security
+  color: "b60205"
+  description: Security-related change. Public reports are redirected to the security policy.
+- name: privacy
+  color: "5319e7"
+  description: Affects what data is read, stored, or sent. Requires privacy checklist review.
+- name: dependencies
+  color: "0366d6"
+  description: Pull requests or issues about dependency updates.
+- name: ci
+  color: "1d76db"
+  description: Continuous integration, workflows, or build pipeline.
+- name: setup-guide
+  color: "fbca04"
+  description: Problems or improvements in the Google OAuth setup and its guide.
+- name: accessibility
+  color: "c2e0c6"
+  description: Keyboard use, screen readers, contrast, or reduced motion.
+- name: performance
+  color: "f9d0c4"
+  description: Speed, memory, or rate-limit behaviour.
+- name: needs-triage
+  color: "ededed"
+  description: New and not yet reviewed by a maintainer.
+- name: good first issue
+  color: "7057ff"
+  description: Small, well-described task suitable for a first contribution.
+- name: help wanted
+  color: "008672"
+  description: Maintainers welcome a contribution on this.
+- name: question
+  color: "d876e3"
+  description: Further information is requested.
+- name: wontfix
+  color: "ffffff"
+  description: Considered and not planned, usually because it conflicts with the privacy model.

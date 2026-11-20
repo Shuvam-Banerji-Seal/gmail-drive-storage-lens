@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to find and delete duplicate files in Google Drive | Gmail Storage Lens</title>
+  <meta name="description" content="How to find duplicate files in Google Drive, why old file versions use space, how to review them, and how to empty Trash so the space is actually freed.">
+  <link rel="canonical" href="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/guides/delete-duplicate-files-google-drive.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Gmail Storage Lens">
+  <meta property="og:title" content="How to find and delete duplicate files in Google Drive">
+  <meta property="og:description" content="Find duplicate Drive files, review old versions, and empty Trash so the space is freed.">
+  <meta property="og:url" content="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/guides/delete-duplicate-files-google-drive.html">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="How to find and delete duplicate files in Google Drive">
+  <meta name="twitter:description" content="Find duplicate Drive files, review old versions, and empty Trash so the space is freed.">
+  <link rel="stylesheet" href="guide.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to find and delete duplicate files in Google Drive",
+    "description": "How to find duplicate files in Google Drive, why old file versions use space, how to review them, and how to empty Trash so the space is actually freed.",
+    "url": "https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/guides/delete-duplicate-files-google-drive.html",
+    "dateModified": "2026-11-20",
+    "inLanguage": "en",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Gmail Storage Lens",
+      "url": "https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <nav aria-label="Site">
+        <ul>
+          <li><a class="brand" href="../">Gmail Storage Lens</a></li>
+          <li><a href="../">Open the app</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <article>
+      <h1>How to find and delete duplicate files in Google Drive</h1>
+      <p class="meta">Guide &middot; last updated 20 November 2026</p>
+      <p class="lede">Duplicate files are one of the most common reasons Google Drive fills up: the same photo, export, or installer saved several times in different folders. This guide shows how to find copies, check which one to keep, and make sure the space is actually released.</p>
+
+      <h2>Why duplicates happen</h2>
+      <p>Duplicates usually come from ordinary habits. A file is downloaded again, exported twice, uploaded to a second folder, or synced from two computers. Drive keeps each copy as a separate file, and each one uses storage. Versions created by editing a file add to the total as well.</p>
+
+      <h2>Step 1: Look for obvious copies</h2>
+      <p>Start with the easy cases. Drive search can find files whose names suggest copies. Try searching for text such as <code>copy</code>, or for names that end in a number in brackets, such as <code>(1)</code>. These are not proof that a file is a duplicate, because two different files can share a name, but they are a good starting point.</p>
+      <p>In list view, the details panel shows size, owner, and location for a selected file. Sorting or scanning by size can help you find large files, since duplicates of big files waste the most space.</p>
+
+      <h2>Step 2: Use checksums when you can</h2>
+      <p>A checksum is a short fingerprint of a file's contents. Two files with the same checksum are, for practical purposes, identical. Drive stores checksums for many binary file types, such as uploaded images, videos, and documents in common formats. It does not store them for native Google Docs, Sheets, or Slides files, which is one reason those are harder to compare.</p>
+      <p>Checking checksums by hand is slow. A tool that reads file metadata can group files that share a checksum in one step, and that is what Gmail Storage Lens is designed to do for Drive. Its duplicate finder is planned and is not available yet.</p>
+
+      <h2>Step 3: Decide which copy to keep</h2>
+      <p>When you have a group of identical files, keep one and remove the rest. Useful rules include:</p>
+      <ul>
+        <li>Keep the newest copy, if you edited the file after making the others.</li>
+        <li>Keep the copy in the folder you actually use.</li>
+        <li>Keep the copy with the most descriptive name.</li>
+      </ul>
+      <p>Before you remove a copy, check that it is not shared with someone who depends on it. Shared links to a removed file stop working.</p>
+
+      <h2>Step 4: Review old versions</h2>
+      <p>Many duplicates are not separate files at all. Drive keeps earlier versions of a file, and those versions can use significant space, especially for large videos or design files that change often. You can open a file's version history from its menu in Drive, and review the versions listed there.</p>
+      <p>Some versions are marked to keep forever, which stops Drive from removing them automatically. You can unmark them if you no longer need them. Google's documentation describes how many versions are kept and for how long, and that behaviour can change, so check the current help page before you rely on a specific number.</p>
+
+      <div class="callout">
+        <p><strong>Note:</strong> Removing an old version is permanent. Download a copy first if you think you may need it later.</p>
+      </div>
+
+      <h2>Step 5: Move the files to Trash</h2>
+      <p>Select the copies you have decided to remove and move them to Trash. Files in Trash still count toward your storage until they are removed, and Drive keeps trashed files for a limited period, which Google has described as 30 days. If you are sure, empty Trash to release the space immediately. Check the Trash folder first so you do not remove anything you still need.</p>
+
+      <h2>Shared drives and Workspace accounts</h2>
+      <p>Files in shared drives belong to the organisation, not to an individual, and they may count toward a shared pool. If you are removing files from a shared drive, check with the other members first, and check your organisation's policy. Your administrator can also see how storage is allocated.</p>
+
+      <h2>Files shared with you</h2>
+      <p>Files that other people share with you generally do not count toward your own storage, because the owner holds them. Removing a shared file from your Drive does not delete it for its owner, but it may remove your access. Think about this before you act on shared folders.</p>
+
+      <h2>Check the result</h2>
+      <p>Google's storage page can take some time to update after you empty Trash. Check it later to confirm the change. If a large share of your storage is still used, look at the other services, because Gmail and Photos use the same quota.</p>
+
+      <div class="related">
+        <h2>More guides</h2>
+        <ul>
+          <li><a href="free-up-gmail-storage.html">How to free up Gmail storage safely</a></li>
+          <li><a href="why-google-storage-full.html">Why your Google storage is full</a></li>
+          <li><a href="find-large-emails-gmail.html">Find large emails in Gmail</a></li>
+          <li><a href="create-google-oauth-client-id.html">Create a Google OAuth client ID</a></li>
+        </ul>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Gmail Storage Lens is free software licensed under AGPL-3.0-or-later. <a href="../">Open the app</a> &middot; <a href="https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens">Source code</a></p>
+      <p><strong>Disclaimer:</strong> This guide is general information, not legal, tax, or professional advice. Google's features, limits, and screens change over time, so check Google's current help pages. Gmail Storage Lens is not affiliated with or endorsed by Google. Gmail and Google Drive are trademarks of Google LLC.</p>
+    </div>
+  </footer>
+</body>
+</html>
