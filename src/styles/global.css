@@ -364,8 +364,8 @@ table.data tbody tr:hover td { background: var(--surface-2); }
 @media (max-width: 520px) { .kpi { padding: 12px 14px; } .kpi .v { font-size: 1.2rem; } .kpi .top { font-size: 0.6rem; letter-spacing: 0.08em; } .kpi .ring { width: 30px; height: 30px; } }
 /* Wide diagrams keep their proportions on phones and scroll sideways instead of crushing labels. */
 @media (max-width: 720px) {
-  .sk, .stream, .cal-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .sk-svg, .stream-svg { min-width: 680px; }
+  .sk, .stream { min-width: 640px; }
+  .card:has(.sk), .card:has(.stream), .cal-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .page-head h1 { font-size: 1.9rem; }
   .card { padding: 16px; }
 }

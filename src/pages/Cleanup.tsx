@@ -350,8 +350,10 @@ export default function Cleanup() {
                     return (
                       <tr key={basketKey(i)}>
                         <td>
-                          {i.kind === 'gmail' ? '✉ ' : '▦ '}
-                          {i.label}
+                          <span className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+                            <Icon name={i.kind === 'drive' ? 'drive' : 'mail'} size={16} style={{ color: 'var(--muted)', flex: 'none' }} />
+                            <span className="truncate">{i.label}</span>
+                          </span>
                         </td>
                         <td className="mono-num">{formatBytes(i.bytes)}</td>
                         <td className={r ? `risk-${r.level}` : ''} title={r?.reasons.join('\n')}>

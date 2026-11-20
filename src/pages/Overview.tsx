@@ -390,8 +390,8 @@ function MonthBars({ months, values, spikes }: { months: string[]; values: numbe
                 width={bw * 0.64}
                 height={bh}
                 rx={Math.min(3, bw * 0.2)}
-                fill={spike ? 'var(--accent)' : i === h ? 'var(--series-2)' : 'var(--surface-3)'}
-                stroke={i === h ? 'var(--series-2)' : 'none'}
+                fill={spike ? 'var(--accent)' : 'var(--series-2)'}
+                fillOpacity={spike || i === h ? 1 : 0.32}
               />
             </g>
           )

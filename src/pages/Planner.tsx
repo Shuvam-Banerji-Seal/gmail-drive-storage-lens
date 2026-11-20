@@ -4,6 +4,7 @@ import { findDuplicates, keepRule } from '../analytics/drive'
 import { planBudget, whatIf, type PlanGroup } from '../analytics/planner'
 import { go } from '../router'
 import { Gauge } from '../components/Mini'
+import { Icon } from '../components/Icon'
 import { PageHeader, SectionHead } from '../components/PageHeader'
 import { toGmailItems, useCap, useClusters, useMsgIndex, useSafetyMap } from '../state/derived'
 import { useApp } from '../state/store'
@@ -160,8 +161,10 @@ export default function Planner() {
                     <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} aria-label={`Include ${c.label}`} />
                   </td>
                   <td>
-                    {c.kind === 'drive' ? '▦ ' : '✉ '}
-                    {c.label}
+                    <span className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+                      <Icon name={c.kind === 'drive' ? 'drive' : 'mail'} size={16} style={{ color: 'var(--muted)', flex: 'none' }} />
+                      <span className="truncate">{c.label}</span>
+                    </span>
                   </td>
                   <td className="mono-num">{formatBytes(c.bytes)}</td>
                   <td className="mono-num">{c.items.length}</td>
