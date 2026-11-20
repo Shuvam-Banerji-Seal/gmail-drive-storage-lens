@@ -25,7 +25,7 @@ Run these locally:
 ## Rules that always apply
 
 - No network hosts beyond the allowlist.
-- Metadata only: never message bodies, attachments, or file contents.
+- Metadata only by default. Message content is read only in the two documented opt-in cases (see [privacy.md](https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/blob/main/docs/privacy.md#when-content-is-read)). CI fails if any other request reads content.
 - No analytics or tracking.
 - No secrets, tokens, or real personal data in code, tests, or screenshots.
 - Destructive actions default to Trash and need explicit confirmation.

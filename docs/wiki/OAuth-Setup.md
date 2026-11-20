@@ -15,7 +15,7 @@ This page summarises the setup. The complete, up-to-date steps, with the exact c
 
    Enter the origin only, with no path and no trailing slash. Leave **Authorized redirect URIs** empty.
 5. **Copy the Client ID.** It ends in `.apps.googleusercontent.com`. Do not create or copy a client secret.
-6. **Paste it into the app** and sign in with your test account.
+6. **Paste it into the setup wizard**, run the connection test, and sign in with your test account.
 
 ## Things to know
 
