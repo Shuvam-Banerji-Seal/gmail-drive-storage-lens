@@ -5,7 +5,9 @@ import { Logo } from './components/Logo'
 import { ScanBar } from './components/ScanBar'
 import { Starfield } from './components/Starfield'
 import { Toasts } from './components/Toasts'
+import { Tour } from './components/Tour'
 import { APP_NAME, COMMIT, SOURCE_URL } from './config/site'
+import { t } from './i18n'
 import { go, useRoute, type Route } from './router'
 import { signOut } from './state/session'
 import { basketTotals, useApp } from './state/store'
@@ -17,19 +19,24 @@ const Overview = lazy(() => import('./pages/Overview'))
 const Gmail = lazy(() => import('./pages/Gmail'))
 const Drive = lazy(() => import('./pages/Drive'))
 const Planner = lazy(() => import('./pages/Planner'))
+const Insights = lazy(() => import('./pages/Insights'))
 const Cleanup = lazy(() => import('./pages/Cleanup'))
 const Verify = lazy(() => import('./pages/Verify'))
 const Settings = lazy(() => import('./pages/Settings'))
 
-const NAV: Array<{ route: Route; label: string; icon: string }> = [
-  { route: 'overview', label: 'Overview', icon: '◎' },
-  { route: 'gmail', label: 'Gmail', icon: '✉' },
-  { route: 'drive', label: 'Drive', icon: '▦' },
-  { route: 'planner', label: 'Planner', icon: '◔' },
-  { route: 'cleanup', label: 'Airlock', icon: '⎋' },
-  { route: 'verify', label: 'Verify privacy', icon: '⛨' },
-  { route: 'settings', label: 'Settings', icon: '⚙' },
-]
+/** Navigation in display order. Labels are looked up at render time so a locale switch takes effect. */
+function navItems(): Array<{ route: Route; label: string; icon: string }> {
+  return [
+    { route: 'overview', label: t('nav.overview'), icon: '◎' },
+    { route: 'gmail', label: t('nav.gmail'), icon: '✉' },
+    { route: 'drive', label: t('nav.drive'), icon: '▦' },
+    { route: 'planner', label: t('nav.planner'), icon: '◔' },
+    { route: 'insights', label: t('nav.insights'), icon: '✦' },
+    { route: 'cleanup', label: t('nav.airlock'), icon: '⎋' },
+    { route: 'verify', label: t('nav.verify'), icon: '⛨' },
+    { route: 'settings', label: t('nav.settings'), icon: '⚙' },
+  ]
+}
 
 export function App() {
   const { route, tab } = useRoute()
@@ -37,22 +44,23 @@ export function App() {
   const theme = useApp((s) => s.settings.theme)
   const basket = useApp((s) => s.basket)
   const me = useApp((s) => s.me)
-  const t = basketTotals(basket)
+  const totals = basketTotals(basket)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
 
   const titles: Record<Route, string> = {
-    home: `${APP_NAME} — see what fills your Gmail & Google Drive storage`,
-    setup: `Connect your own Google client · ${APP_NAME}`,
-    overview: `Overview · ${APP_NAME}`,
-    gmail: `Gmail explorer · ${APP_NAME}`,
-    drive: `Drive explorer · ${APP_NAME}`,
-    planner: `Budget planner · ${APP_NAME}`,
-    cleanup: `Airlock · ${APP_NAME}`,
-    verify: `Verify privacy · ${APP_NAME}`,
-    settings: `Settings · ${APP_NAME}`,
+    home: t('title.home', { app: APP_NAME, page: t('page.home') }),
+    setup: t('title.app', { app: APP_NAME, page: t('page.setup') }),
+    overview: t('title.app', { app: APP_NAME, page: t('page.overview') }),
+    gmail: t('title.app', { app: APP_NAME, page: t('page.gmail') }),
+    drive: t('title.app', { app: APP_NAME, page: t('page.drive') }),
+    planner: t('title.app', { app: APP_NAME, page: t('page.planner') }),
+    insights: t('title.app', { app: APP_NAME, page: t('page.insights') }),
+    cleanup: t('title.app', { app: APP_NAME, page: t('page.airlock') }),
+    verify: t('title.app', { app: APP_NAME, page: t('page.verify') }),
+    settings: t('title.app', { app: APP_NAME, page: t('page.settings') }),
   }
   useEffect(() => {
     document.title = titles[route]
@@ -86,19 +94,28 @@ export function App() {
           <a className="brand" href="#/" aria-label={`${APP_NAME} home`}>
             <Logo /> <span>Storage Lens</span>
           </a>
-          {NAV.map((n) => (
-            <a key={n.route} className={`nav ${n.route === 'cleanup' ? 'basket-link' : ''}`} href={`#/${n.route}`} aria-current={route === n.route ? 'page' : undefined}>
+          {navItems().map((n) => (
+            <a
+              key={n.route}
+              className={`nav ${n.route === 'cleanup' ? 'basket-link' : ''}`}
+              href={`#/${n.route}`}
+              aria-current={route === n.route ? 'page' : undefined}
+            >
               <span aria-hidden="true">{n.icon}</span> {n.label}
-              {n.route === 'cleanup' && t.count > 0 && <span className="count">{t.count}</span>}
+              {n.route === 'cleanup' && totals.count > 0 && <span className="count">{totals.count}</span>}
             </a>
           ))}
           <div className="spacer" />
           <div className="card flat" style={{ padding: 12, fontSize: '0.85rem' }}>
             <div className="mode-pill muted">{mode === 'demo' ? 'Demo data' : mode === 'live' ? 'Connected' : 'Not connected'}</div>
-            {me && <div className="mono" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{me}</div>}
-            {t.count > 0 && (
+            {me && (
+              <div className="mono" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {me}
+              </div>
+            )}
+            {totals.count > 0 && (
               <div className="muted">
-                Selected {t.count} · {formatBytes(t.bytes)}
+                Selected {totals.count} · {formatBytes(totals.bytes)}
               </div>
             )}
             {mode !== 'landing' && (
@@ -125,12 +142,14 @@ export function App() {
             {route === 'gmail' && <Gmail tab={tab} />}
             {route === 'drive' && <Drive tab={tab} />}
             {route === 'planner' && <Planner />}
+            {route === 'insights' && <Insights />}
             {route === 'cleanup' && <Cleanup />}
             {route === 'verify' && <Verify />}
             {route === 'settings' && <Settings />}
           </Suspense>
           <Footer />
         </main>
+        <Tour />
       </div>
       <Toasts />
       <CommandPalette />

@@ -3,13 +3,46 @@
 import { useMemo, useState } from 'react'
 import { planToCsv } from '../analytics/csv'
 import { renderShareCard } from '../components/ShareCard'
-import { createGmailFilter, deleteForever, emptyDriveTrash, labelForReview, trashItems } from '../state/session'
-import { useMsgIndex, useSafetyMap } from '../state/derived'
+import { archiveToMbox, createGmailFilter, deleteForever, emptyDriveTrash, emptyGmailBin, labelForReview, trashItems } from '../state/session'
+import { toGmailItems, useMsgIndex, useNoise, useSafetyMap } from '../state/derived'
 import { basketKey, basketTotals, useApp } from '../state/store'
 import type { BasketItem } from '../types'
 import { formatBytes, formatCount } from '../util/format'
 import { downloadBlob, downloadText } from '../util/download'
 import { trashedBytes } from '../analytics/drive'
+import { applyRule, describeRule, hasCriteria, retentionChecklist, ruleToGmailQuery, type SelectionRule } from '../analytics/rules'
+
+interface RuleForm {
+  sender: string
+  label: string
+  minMb: string
+  olderMonths: string
+  unread: boolean
+  lists: boolean
+}
+const EMPTY_FORM: RuleForm = { sender: '', label: '', minMb: '', olderMonths: '', unread: false, lists: false }
+
+/** Form strings to a rule. A blank field means that criterion is not in use. */
+function toRule(f: RuleForm): SelectionRule {
+  const num = (s: string) => (s.trim() === '' ? undefined : Number(s))
+  return {
+    senderContains: f.sender.trim() || undefined,
+    label: f.label.trim() || undefined,
+    minSizeMB: num(f.minMb),
+    olderThanMonths: num(f.olderMonths),
+    unreadOnly: f.unread || undefined,
+    listsOnly: f.lists || undefined,
+  }
+}
+
+async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    return false
+  }
+}
 
 export default function Cleanup() {
   const basket = useApp((s) => s.basket)
@@ -24,6 +57,16 @@ export default function Cleanup() {
   const [trashConfirm, setTrashConfirm] = useState('')
   const [busy, setBusy] = useState(false)
   const [filterSize, setFilterSize] = useState(2)
+  const [ruleForm, setRuleForm] = useState<RuleForm>(EMPTY_FORM)
+  const [now] = useState(() => Date.now())
+  const [archiveText, setArchiveText] = useState('')
+  const [archiving, setArchiving] = useState(false)
+  const [binConfirm, setBinConfirm] = useState({ trash: '', spam: '' })
+  const gmail = useApp((s) => s.gmail)
+  const labelCounts = useApp((s) => s.labelCounts)
+  const addToBasket = useApp((s) => s.addToBasket)
+  const toast = useApp((s) => s.toast)
+  const noise = useNoise()
 
   const all = useMemo(() => Object.values(basket), [basket])
   const protectedItems = useMemo(() => all.filter((i) => i.kind === 'gmail' && safetyMap.get(i.id)?.level === 'blocked'), [all, safetyMap])
@@ -57,6 +100,35 @@ export default function Cleanup() {
   const risk = (i: BasketItem) => (i.kind === 'gmail' ? safetyMap.get(i.id) : undefined)
   const freed = receipts.filter((r) => r.action === 'trash' || r.action === 'delete' || r.action === 'revisions' || r.action === 'emptyTrash')
 
+  const rule = useMemo(() => toRule(ruleForm), [ruleForm])
+  const ruleMatches = useMemo(() => (hasCriteria(rule) ? applyRule(gmail, rule, now) : []), [gmail, rule, now])
+  const ruleItems = useMemo(() => toGmailItems(ruleMatches, safetyMap), [ruleMatches, safetyMap])
+  const ruleSkipped = ruleMatches.length - ruleItems.length
+  const ruleBytes = ruleItems.reduce((s, i) => s + i.bytes, 0)
+  const ruleQuery = ruleToGmailQuery(rule)
+  const trashCount = labelCounts.find((l) => l.id === 'TRASH')?.messagesTotal ?? 0
+  const spamCount = labelCounts.find((l) => l.id === 'SPAM')?.messagesTotal ?? 0
+
+  const runArchive = async () => {
+    setArchiving(true)
+    setArchiveText(`Reading 0 of ${formatCount(t.gmail)}…`)
+    try {
+      const n = await archiveToMbox(items, (done, total) => setArchiveText(`Reading ${formatCount(done)} of ${formatCount(total)}…`))
+      setArchiveText(n ? `Saved ${formatCount(n)} emails to your device.` : 'Nothing was saved.')
+    } finally {
+      setArchiving(false)
+    }
+  }
+
+  const emptyBin = async (which: 'trash' | 'spam') => {
+    setBusy(true)
+    try {
+      if (await emptyGmailBin(which, binConfirm[which])) setBinConfirm((c) => ({ ...c, [which]: '' }))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="stack" style={{ gap: 20 }}>
       <header>
@@ -67,6 +139,82 @@ export default function Cleanup() {
           {mode === 'demo' && ' You are in demo mode: actions only change the synthetic data.'}
         </p>
       </header>
+
+      <section className="card stack" aria-labelledby="rule-h">
+        <div className="row between">
+          <h2 id="rule-h">Select by rule</h2>
+          <button className="btn sm ghost" disabled={!hasCriteria(rule)} onClick={() => setRuleForm(EMPTY_FORM)}>
+            Reset rule
+          </button>
+        </div>
+        <p className="muted">
+          Describe the mail you mean. Matches go to the Airlock through the same safety checks: starred, sent, draft and high-risk mail is always
+          skipped.
+        </p>
+        <div className="grid cols-3">
+          <label className="stack" style={{ gap: 4 }}>
+            <span>Sender contains</span>
+            <input type="text" value={ruleForm.sender} onChange={(e) => setRuleForm((f) => ({ ...f, sender: e.target.value }))} autoComplete="off" spellCheck={false} />
+          </label>
+          <label className="stack" style={{ gap: 4 }}>
+            <span>Gmail label</span>
+            <input type="text" placeholder="e.g. CATEGORY_PROMOTIONS" value={ruleForm.label} onChange={(e) => setRuleForm((f) => ({ ...f, label: e.target.value }))} autoComplete="off" spellCheck={false} />
+          </label>
+          <label className="stack" style={{ gap: 4 }}>
+            <span>Larger than (MB)</span>
+            <input type="number" min="0" step="0.5" value={ruleForm.minMb} onChange={(e) => setRuleForm((f) => ({ ...f, minMb: e.target.value }))} aria-label="Rule minimum size in MB" />
+          </label>
+          <label className="stack" style={{ gap: 4 }}>
+            <span>Older than (months)</span>
+            <input type="number" min="0" step="1" value={ruleForm.olderMonths} onChange={(e) => setRuleForm((f) => ({ ...f, olderMonths: e.target.value }))} aria-label="Rule age in months" />
+          </label>
+        </div>
+        <div className="row">
+          <label className="row">
+            <input type="checkbox" checked={ruleForm.unread} onChange={(e) => setRuleForm((f) => ({ ...f, unread: e.target.checked }))} />
+            Unread only
+          </label>
+          <label className="row">
+            <input type="checkbox" checked={ruleForm.lists} onChange={(e) => setRuleForm((f) => ({ ...f, lists: e.target.checked }))} />
+            Mailing lists only
+          </label>
+        </div>
+        <div className="card flat stack">
+          <p role="status" aria-live="polite" style={{ margin: 0 }}>
+            <strong className="mono-num">
+              {formatCount(ruleItems.length)} emails · {formatBytes(ruleBytes)}
+            </strong>
+            {!hasCriteria(rule) && <span className="muted"> (set at least one criterion)</span>}
+          </p>
+          <p className="muted" style={{ margin: 0 }}>
+            {describeRule(rule)}
+          </p>
+          {ruleSkipped > 0 && <p className="chip warn">{formatCount(ruleSkipped)} matches skipped: starred, sent, drafts or high risk.</p>}
+          <div className="copy">
+            <code>{ruleQuery || 'No Gmail search for an empty rule'}</code>
+            <button
+              className="btn sm"
+              disabled={!ruleQuery}
+              onClick={() => void copyText(ruleQuery).then((ok) => toast(ok ? 'Gmail search copied.' : 'Copy failed: select the text and copy it.', ok ? 'ok' : 'warn'))}
+            >
+              Copy Gmail search
+            </button>
+          </div>
+          {ruleForm.lists && <p className="muted" style={{ margin: 0 }}>Gmail search cannot filter mailing lists, so the search above is broader than the rule.</p>}
+        </div>
+        <div>
+          <button
+            className="btn primary"
+            disabled={!ruleItems.length}
+            onClick={() => {
+              addToBasket(ruleItems)
+              toast(`Added ${formatCount(ruleItems.length)} emails to the Airlock${ruleSkipped ? `; ${formatCount(ruleSkipped)} skipped` : ''}.`)
+            }}
+          >
+            Add matches to Airlock
+          </button>
+        </div>
+      </section>
 
       <section className="card stack">
         <div className="row between">
@@ -92,6 +240,23 @@ export default function Cleanup() {
           <div className="stat">
             <span className="v">{formatCount(t.drive)}</span>
             <span className="k">Drive files</span>
+          </div>
+        </div>
+        <div className="stack">
+          <h3>Download archive (.mbox), optional</h3>
+          <p className="muted">
+            Saves the full content of the selected emails as one .mbox file straight to this device. Message content is read only when you press
+            this button, and nothing is uploaded anywhere.
+          </p>
+          <div className="row">
+            <button className="btn sm" disabled={archiving || !t.gmail} onClick={() => void runArchive()}>
+              Download archive (.mbox)
+            </button>
+            {archiveText && (
+              <span className="muted" role="status">
+                {archiveText}
+              </span>
+            )}
           </div>
         </div>
         {protectedItems.length > 0 && (
@@ -198,6 +363,47 @@ export default function Cleanup() {
         </section>
       )}
 
+      <section className="card stack airlock" aria-labelledby="bins-h">
+        <h2 id="bins-h">{'Gmail Trash & Spam'}</h2>
+        <p>
+          Mail in Gmail Trash and Spam still counts toward your storage until it is emptied. Google deletes it automatically after 30 days, but
+          you can empty either folder now. This is permanent.
+        </p>
+        <div className="grid cols-2">
+          {(
+            [
+              { which: 'trash', name: 'Trash', count: trashCount, phrase: 'EMPTY GMAIL TRASH' },
+              { which: 'spam', name: 'Spam', count: spamCount, phrase: 'EMPTY SPAM' },
+            ] as const
+          ).map((b) => (
+            <div key={b.which} className="stack">
+              <div className="stat">
+                <span className="v">{formatCount(b.count)}</span>
+                <span className="k">in Gmail {b.name}</span>
+              </div>
+              <label className="stack" style={{ gap: 4 }}>
+                <span>
+                  Type <code>{b.phrase}</code> to confirm
+                </span>
+                <input
+                  type="text"
+                  value={binConfirm[b.which]}
+                  onChange={(e) => setBinConfirm((c) => ({ ...c, [b.which]: e.target.value }))}
+                  autoComplete="off"
+                  spellCheck={false}
+                  aria-label={`Type ${b.phrase}`}
+                />
+              </label>
+              <div>
+                <button className="btn danger" disabled={busy || binConfirm[b.which] !== b.phrase} onClick={() => void emptyBin(b.which)}>
+                  Empty Gmail {b.name}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {senders.length > 0 && (
         <section className="card stack">
           <h2>Keep it from filling up again</h2>
@@ -233,6 +439,19 @@ export default function Cleanup() {
           </table>
         </section>
       )}
+
+      <section className="card stack">
+        <h2>Retention checklist</h2>
+        <p className="muted">
+          A Markdown checklist with a suggested keep period for each sender, based on how often you open their mail. It is a plain file for your
+          notes; nothing in your mailbox changes.
+        </p>
+        <div>
+          <button className="btn" onClick={() => downloadText(retentionChecklist(noise), 'storage-lens-retention.md', 'text/markdown')}>
+            Download retention checklist
+          </button>
+        </div>
+      </section>
 
       {receipts.length > 0 && (
         <section className="card stack">

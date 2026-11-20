@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import { useState } from 'react'
 import { go } from '../router'
-import { loadScanCache, saveScanCache, signOut } from '../state/session'
+import { loadScanCache, saveScanCache, scanAll, signOut, switchAccount } from '../state/session'
+import { restartTour } from '../components/Tour'
 import { clearSettings, type Theme } from '../state/settings'
 import { useApp } from '../state/store'
 import { wipeAll } from '../util/cache'
@@ -33,6 +34,16 @@ export default function Settings() {
       </section>
 
       <section className="card stack">
+        <h2>Guided tour</h2>
+        <p className="muted">A five-step walk through the main views.</p>
+        <div>
+          <button className="btn sm" onClick={() => restartTour()}>
+            Restart the tour
+          </button>
+        </div>
+      </section>
+
+      <section className="card stack">
         <h2>Storage cap</h2>
         <p className="muted">
           Current: {settings.capBytes ? formatBytes(settings.capBytes) : 'use the limit Google reports'}. Set this if your work or school
@@ -59,6 +70,21 @@ export default function Settings() {
           <button className="btn sm" onClick={() => go('setup')}>
             Change
           </button>
+          {mode === 'live' && (
+            <button
+              className="btn sm"
+              onClick={() => {
+                void switchAccount().then((ok) => {
+                  if (ok) {
+                    go('overview')
+                    void scanAll()
+                  }
+                })
+              }}
+            >
+              Switch Google account
+            </button>
+          )}
           {settings.clientId && (
             <button className="btn sm ghost" onClick={() => setSettings({ clientId: '' })}>
               Forget Client ID

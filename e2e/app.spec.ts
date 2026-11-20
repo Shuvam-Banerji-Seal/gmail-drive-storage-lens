@@ -2,6 +2,14 @@
 import { expect, test } from '@playwright/test'
 import { CLIENT_ID, mockGoogle } from './google-mock'
 
+// The first-run tour is covered by its own test; elsewhere start with it dismissed so it never covers buttons.
+test.beforeEach(async ({ page }, info) => {
+  if (info.title.includes('guided tour')) return
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('gsl.settings.v1')) localStorage.setItem('gsl.settings.v1', JSON.stringify({ tourDone: true }))
+  })
+})
+
 test.describe('static & privacy', () => {
   test('landing page has SEO metadata and a strict CSP', async ({ page }) => {
     await page.goto('/')
@@ -22,13 +30,17 @@ test.describe('static & privacy', () => {
     await page.goto('/')
     await page.getByRole('button', { name: /Explore the demo/ }).click()
     await expect(page.getByRole('heading', { name: 'Your storage orbit' })).toBeVisible()
-    for (const tab of ['senders', 'constellation', 'rivers', 'tides', 'mailfall', 'nebula', 'repeats', 'unsubscribe']) {
+    for (const tab of ['senders', 'constellation', 'rivers', 'tides', 'mailfall', 'nebula', 'repeats', 'attachments', 'unsubscribe']) {
       await page.goto(`/#/gmail/${tab}`)
       await expect(page.locator('main h2').first()).toBeVisible()
     }
     for (const tab of ['continents', 'twins', 'ghosts', 'cold', 'public', 'sharing']) {
       await page.goto(`/#/drive/${tab}`)
       await expect(page.locator('main h2').first()).toBeVisible()
+    }
+    for (const route of ['insights', 'planner', 'cleanup', 'settings']) {
+      await page.goto(`/#/${route}`)
+      await expect(page.locator('main h1').first()).toBeVisible()
     }
     expect(external).toEqual([])
   })
@@ -37,6 +49,22 @@ test.describe('static & privacy', () => {
     await page.goto('/#/verify')
     await page.getByRole('button', { name: /Try to contact example.com/ }).click()
     await expect(page.getByText(/Blocked by your browser/)).toBeVisible()
+  })
+})
+
+test.describe('onboarding', () => {
+  test('guided tour appears once and can be skipped', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /Explore the demo/ }).click()
+    const tour = page.getByRole('dialog')
+    await expect(tour).toBeVisible()
+    await tour.getByRole('button', { name: /Next/ }).click()
+    await tour.getByRole('button', { name: /Skip/ }).click()
+    await expect(tour).toHaveCount(0)
+    await page.reload()
+    await page.getByRole('button', { name: /Explore the demo/ }).click()
+    await expect(page.getByRole('heading', { name: 'Your storage orbit' })).toBeVisible()
+    await expect(page.getByRole('dialog')).toHaveCount(0)
   })
 })
 

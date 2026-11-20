@@ -4,11 +4,13 @@ import { mergeSenders, senderKey, subjectClusters } from '../analytics/cluster'
 import { embed2d } from '../analytics/embed'
 import { correspondentGraph, louvainCommunities, pageRank, repeatedAttachmentGroups, senderGraph } from '../analytics/graphs'
 import { normalizeSubject } from '../analytics/parse'
+import { attachmentGraph, cumulativeByMonth, duplicateAttachments, senderMonthMatrix, typeBreakdown } from '../analytics/attachments'
 import { anomalies, dailyBytes, monthlyByCluster, sankeyData } from '../analytics/series'
 import { unsubscribeRadar } from '../analytics/unsub'
-import { BarList, CalendarHeatmap, ForceGraph, Sankey, Scatter, Stream, type BarRow, type ScatterPoint } from '../charts'
+import { BarList, CalendarHeatmap, ForceGraph, Heatmap, RaceBars, Sankey, Scatter, Stream, type BarRow, type ScatterPoint } from '../charts'
 import { go } from '../router'
 import { toGmailItems, useClusters, useMsgIndex, useSafetyMap } from '../state/derived'
+import { deepScanParts } from '../state/session'
 import { useApp } from '../state/store'
 import type { BasketItem, GmailMsg, GraphData, Risk, SafetyResult } from '../types'
 import { formatBytes, formatDate, formatPct } from '../util/format'
@@ -27,6 +29,7 @@ const TABS = [
   { id: 'mailfall', label: 'Mailfall', title: 'Mailfall: bytes per day' },
   { id: 'nebula', label: 'Nebula', title: 'Nebula: similar subjects' },
   { id: 'repeats', label: 'Repeats', title: 'Repeated attachments' },
+  { id: 'attachments', label: 'Attachments', title: 'Attachments: types and duplicate copies' },
   { id: 'unsubscribe', label: 'Unsubscribe', title: 'Unsubscribe radar' },
 ] as const
 type TabId = (typeof TABS)[number]['id']
@@ -84,6 +87,7 @@ const BODIES: Record<TabId, () => ReactElement> = {
   mailfall: MailfallTab,
   nebula: NebulaTab,
   repeats: RepeatsTab,
+  attachments: AttachmentsTab,
   unsubscribe: UnsubscribeTab,
 }
 
@@ -458,10 +462,21 @@ function RiversTab() {
 
 // ---------------------------------------------------------------- Tides
 
+type TideView = 'stream' | 'race' | 'heat'
+const TIDE_VIEWS: Array<{ id: TideView; label: string }> = [
+  { id: 'stream', label: 'Stream' },
+  { id: 'race', label: 'Time machine' },
+  { id: 'heat', label: 'Heatmap' },
+]
+
 function TidesTab() {
   const gmail = useApp((s) => s.gmail)
   const clusters = useClusters()
+  const [view, setView] = useState<TideView>('stream')
   const series = useMemo(() => monthlyByCluster(gmail, clusters, 8), [gmail, clusters])
+  const raceSeries = useMemo(() => monthlyByCluster(gmail, clusters, 10), [gmail, clusters])
+  const frames = useMemo(() => cumulativeByMonth(raceSeries.months, raceSeries.series), [raceSeries])
+  const matrix = useMemo(() => senderMonthMatrix(gmail, clusters, 15), [gmail, clusters])
   const totals = useMemo(() => series.months.map((_, i) => series.series.reduce((s, x) => s + (x.values[i] ?? 0), 0)), [series])
   const spikes = useMemo(() => anomalies(totals).map((i) => ({ month: series.months[i] ?? '', bytes: totals[i] ?? 0 })), [series, totals])
   const heaviest = useMemo(
@@ -484,10 +499,19 @@ function TidesTab() {
   return (
     <Panel
       id="tides"
-      blurb="Bytes per month for the eight largest senders, with the rest folded into Other. Thick bands are months with lots of storage."
+      blurb="Bytes per month for the largest senders. Stream shows the shape, Time machine replays the totals month by month, Heatmap shows each sender in each month."
     >
+      <div className="tabs" role="tablist" aria-label="Tide view">
+        {TIDE_VIEWS.map((v) => (
+          <button key={v.id} type="button" role="tab" aria-selected={view === v.id} onClick={() => setView(v.id)}>
+            {v.label}
+          </button>
+        ))}
+      </div>
       <section className="card flat">
-        <Stream months={series.months} series={series.series} />
+        {view === 'stream' && <Stream months={series.months} series={series.series} />}
+        {view === 'race' && <RaceBars frames={frames} top={10} />}
+        {view === 'heat' && <Heatmap rows={matrix.rows} cols={matrix.cols} values={matrix.values} />}
       </section>
       <div className="grid cols-2">
         <section className="card stack">
@@ -786,6 +810,158 @@ function RepeatsTab() {
             </tbody>
           </table>
         </section>
+      )}
+    </Panel>
+  )
+}
+
+// ---------------------------------------------------------------- Attachments
+
+const DEEP_SCAN_MAX = 300
+const DUP_ROWS = 100
+
+function AttachmentsTab() {
+  const gmail = useApp((s) => s.gmail)
+  const parts = useApp((s) => s.parts)
+  const byId = useMsgIndex()
+  const safetyMap = useSafetyMap()
+  const addAirlock = useAirlock()
+  const [scanning, setScanning] = useState(false)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+
+  const scanN = Math.min(DEEP_SCAN_MAX, gmail.length)
+  const scanIds = useMemo(
+    () =>
+      [...gmail]
+        .sort((a, b) => b.size - a.size || (a.id < b.id ? -1 : 1))
+        .slice(0, scanN)
+        .map((m) => m.id),
+    [gmail, scanN],
+  )
+  const scanned = useMemo(() => scanIds.filter((id) => parts[id] !== undefined).length, [scanIds, parts])
+  const types = useMemo(() => typeBreakdown(parts), [parts])
+  const dups = useMemo(() => duplicateAttachments(parts, gmail), [parts, gmail])
+  const graph = useMemo(() => attachmentGraph(dups, gmail), [dups, gmail])
+  const dupRows = useMemo(
+    () =>
+      dups.slice(0, DUP_ROWS).map((d) => ({
+        ...d,
+        older: toGmailItems(d.messageIds.slice(1).map((id) => byId.get(id)).filter(isMsg), safetyMap),
+      })),
+    [dups, byId, safetyMap],
+  )
+  const wasted = useMemo(() => dups.reduce((s, d) => s + d.wasted, 0), [dups])
+
+  if (gmail.length === 0) {
+    return (
+      <Panel id="attachments" blurb="File names, types and sizes of attachments, with repeated copies.">
+        <NoMail />
+      </Panel>
+    )
+  }
+
+  const runScan = async () => {
+    setScanning(true)
+    setProgress({ done: 0, total: scanIds.length })
+    await deepScanParts(scanIds, (done, total) => setProgress({ done, total }))
+    setScanning(false)
+    setProgress(null)
+  }
+
+  return (
+    <Panel
+      id="attachments"
+      blurb="Attachment names, types and sizes, and which files were sent again and again. Attachment contents are never read."
+    >
+      <section className="card stack">
+        <p style={{ margin: 0 }}>
+          The deep scan is optional. It reads only the attachment structure of each email (file name, type and size) and never
+          downloads attachment content or message bodies. Without it, attachments stay unknown.
+        </p>
+        <div className="row between">
+          <button type="button" className="btn primary" disabled={scanning || scanN === 0} onClick={runScan}>
+            Deep-scan the {scanN} largest emails
+          </button>
+          <span className="muted mono-num" role="status" aria-live="polite" style={{ fontSize: '0.88rem' }}>
+            {scanning && progress
+              ? `Scanning… ${progress.done} of ${progress.total}`
+              : `${scanned} of ${scanN} scanned`}
+          </span>
+        </div>
+      </section>
+
+      {scanned === 0 ? (
+        <div className="empty">Nothing scanned yet. Run the deep scan to see attachment types and repeated copies.</div>
+      ) : (
+        <>
+          <div className="grid cols-2">
+            <section className="card stack" aria-label="Attachment types">
+              <h3 style={{ margin: 0 }}>Types</h3>
+              <BarList
+                rows={types.map((t) => ({
+                  id: t.type,
+                  label: t.type,
+                  value: t.bytes,
+                  sub: `${t.count} ${plural(t.count, 'file', 'files')}`,
+                }))}
+              />
+            </section>
+
+            <section className="card stack">
+              <h3 style={{ margin: 0 }}>Repeated copies</h3>
+              <p className="muted" style={{ margin: 0 }}>
+                {dups.length} repeated {plural(dups.length, 'attachment', 'attachments')} · {formatBytes(wasted)} stored again. The
+                newest copy is kept.
+              </p>
+              {dupRows.length === 0 ? (
+                <div className="empty">No attachment appears in two or more scanned emails.</div>
+              ) : (
+                <table className="data">
+                  <caption className="sr-only">Attachments that appear in more than one email</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">File</th>
+                      <th scope="col">Size</th>
+                      <th scope="col">Copies</th>
+                      <th scope="col">Wasted</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dupRows.map((d) => (
+                      <tr key={d.key}>
+                        <td style={{ wordBreak: 'break-word' }}>{d.filename}</td>
+                        <td className="mono-num">{formatBytes(d.size)}</td>
+                        <td className="mono-num">{d.copies}</td>
+                        <td className="mono-num">{formatBytes(d.wasted)}</td>
+                        <td>
+                          <button type="button" className="btn sm" disabled={d.older.length === 0} onClick={() => addAirlock(d.older, 'emails')}>
+                            Add older copies to Airlock
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </section>
+          </div>
+
+          <section className="card stack" aria-label="Attachment constellation">
+            <h3 style={{ margin: 0 }}>Who sends the repeats</h3>
+            <p className="legend" style={{ margin: 0 }}>
+              <span>Lines join a sender to each repeated attachment they sent. Thicker lines mean more copies.</span>
+              <span>Node size is bytes. Colour marks communities, not file types.</span>
+            </p>
+            {graph.nodes.length === 0 ? (
+              <p className="muted" style={{ margin: 0 }}>
+                No repeated attachments to draw.
+              </p>
+            ) : (
+              <ForceGraph data={graph} />
+            )}
+          </section>
+        </>
       )}
     </Panel>
   )

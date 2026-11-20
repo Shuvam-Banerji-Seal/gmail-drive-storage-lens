@@ -49,3 +49,6 @@ jobs:
 
       - name: Check dependency licences
         run: npm run check:licenses
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

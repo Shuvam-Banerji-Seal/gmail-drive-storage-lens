@@ -3,13 +3,16 @@ import { useMemo, useState } from 'react'
 import { findDuplicates, revisionBloat, trashedBytes } from '../analytics/drive'
 import { anomalies, linearForecast, monthlyByCluster } from '../analytics/series'
 import { mergeSenders } from '../analytics/cluster'
+import { recommend, topOffenders, type Recommendation } from '../analytics/recommend'
 import { BarList, QuotaOrbit } from '../charts'
 import { go } from '../router'
-import { toGmailItems, useCap, useClusters, useNoise, useSafetyMap } from '../state/derived'
+import { toGmailItems, useCap, useClusters, useMsgIndex, useNoise, useSafetyMap } from '../state/derived'
 import { useApp } from '../state/store'
+import type { BasketItem, GmailMsg } from '../types'
 import { formatBytes, formatCount, formatPct } from '../util/format'
 
 const GiB = 2 ** 30
+const RISK_CHIP: Record<Recommendation['risk'], string> = { low: 'ok', medium: 'warn', high: 'bad' }
 
 export default function Overview() {
   const quota = useApp((s) => s.quota)
@@ -19,11 +22,36 @@ export default function Overview() {
   const mode = useApp((s) => s.mode)
   const setSettings = useApp((s) => s.setSettings)
   const addToBasket = useApp((s) => s.addToBasket)
+  const toast = useApp((s) => s.toast)
   const { cap, pooled } = useCap()
   const clusters = useClusters()
   const noise = useNoise()
   const safetyMap = useSafetyMap()
+  const byMsgId = useMsgIndex()
   const [capInput, setCapInput] = useState('')
+  const [now] = useState(() => Date.now())
+  const recs = useMemo(() => recommend({ gmail, drive, safety: safetyMap, now }), [gmail, drive, safetyMap, now])
+  const offenders = useMemo(() => topOffenders(clusters, drive, 15), [clusters, drive])
+  const driveById = useMemo(() => new Map(drive.map((f) => [f.id, f])), [drive])
+
+  /** Gmail targets go through toGmailItems, so blocked and high-risk mail can never reach the Airlock from here. */
+  const addRecommendation = (r: Recommendation) => {
+    if (r.target.kind === 'gmail') {
+      const msgs = r.target.ids.map((id) => byMsgId.get(id)).filter((m): m is GmailMsg => !!m)
+      const items = toGmailItems(msgs, safetyMap)
+      addToBasket(items)
+      const skipped = r.target.ids.length - items.length
+      toast(`Added ${formatCount(items.length)} emails to the Airlock${skipped ? `; ${formatCount(skipped)} skipped` : ''}.`)
+      return
+    }
+    const items: BasketItem[] = []
+    for (const id of r.target.ids) {
+      const f = driveById.get(id)
+      if (f) items.push({ kind: 'drive', id: f.id, bytes: f.quota || f.size, label: f.name })
+    }
+    addToBasket(items)
+    toast(`Added ${formatCount(items.length)} Drive files to the Airlock.`)
+  }
 
   const usage = quota?.usage ?? 0
   const inDrive = quota?.usageInDrive ?? 0
@@ -170,6 +198,69 @@ export default function Overview() {
         <p className="muted" style={{ marginTop: 8 }}>
           Click a bar to add that sender's emails to the Airlock. Starred, sent, and important-person mail is always skipped.
         </p>
+      </section>
+
+      <section className="stack" style={{ gap: 12 }} aria-labelledby="recs-h">
+        <div className="row between">
+          <h2 id="recs-h">Recommendations</h2>
+          <span className="muted">Each rule shows its numbers. Nothing is added to the Airlock until you press Add.</span>
+        </div>
+        {recs.length === 0 ? (
+          <div className="empty">No recommendations: none of the rules matches this scan.</div>
+        ) : (
+          <div className="grid cols-2">
+            {recs.map((r) => (
+              <article key={r.id} className="card stack">
+                <div className="row between">
+                  <h3 style={{ margin: 0 }}>{r.title}</h3>
+                  <span className={`chip ${RISK_CHIP[r.risk]}`}>risk: {r.risk}</span>
+                </div>
+                <p className="muted" style={{ margin: 0 }}>
+                  {r.why}
+                </p>
+                <div className="row between">
+                  <span className="mono-num">
+                    <b>{formatBytes(r.bytes)}</b> · {formatCount(r.target.ids.length)} {r.target.kind === 'gmail' ? 'emails' : 'files'}
+                  </span>
+                  <button className="btn sm" aria-label={`Add to Airlock: ${r.title}`} onClick={() => addRecommendation(r)}>
+                    Add to Airlock
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="card" aria-labelledby="offenders-h">
+        <h2 id="offenders-h">Top offenders across Gmail and Drive</h2>
+        <p className="muted">The largest Gmail sender clusters and owned Drive files, mixed and sorted by size.</p>
+        {offenders.length === 0 ? (
+          <div className="empty">Nothing to rank yet.</div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data" aria-labelledby="offenders-h">
+              <thead>
+                <tr>
+                  <th scope="col">Source</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Size</th>
+                  <th scope="col">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {offenders.map((o, i) => (
+                  <tr key={`${o.kind}:${i}:${o.label}`}>
+                    <td>{o.kind === 'gmail' ? 'Gmail' : 'Drive'}</td>
+                    <td>{o.label}</td>
+                    <td className="mono-num">{formatBytes(o.bytes)}</td>
+                    <td className="muted">{o.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <div className="grid cols-3">
