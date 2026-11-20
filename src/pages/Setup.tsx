@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Guided "bring your own OAuth client" wizard. The project ships no client ID of its own.
 import { useEffect, useState } from 'react'
-import { extractClientId, isValidClientId } from '../auth/gis'
+import { extractClientId, isRegistrableOrigin, isValidClientId } from '../auth/gis'
 import { Icon, type IconName } from '../components/Icon'
 import { Info } from '../components/Info'
 import { PageHeader } from '../components/PageHeader'
+import { SITE_URL } from '../config/site'
 import { go, useRoute } from '../router'
 import { connect, preloadSignIn, scanAll, type ConnectCheck } from '../state/session'
 import { useApp } from '../state/store'
@@ -64,6 +65,8 @@ export function Setup() {
   const [check, setCheck] = useState<ConnectCheck | null>(null)
   const [busy, setBusy] = useState(false)
   const origin = typeof location !== 'undefined' ? location.origin : 'http://localhost:5173'
+  // Google only accepts https origins or localhost; LAN IPs over http can never be registered.
+  const secureOrigin = isRegistrableOrigin(origin)
   const id = extractClientId(input) ?? input.trim()
   const valid = isValidClientId(id)
   const looksSecret = /GOCSPX-|client_secret/i.test(input)
@@ -167,8 +170,19 @@ export function Setup() {
         )}
         {step === 3 && (
           <>
-            <p className="muted">Type: Web application. Paste this under Authorized JavaScript origins:</p>
-            <Copy text={origin} label="Authorized JavaScript origin" />
+            {secureOrigin ? (
+              <>
+                <div className="row" style={{ gap: 8 }}>
+                  <span className="chip ok">Application type: Web application</span>
+                  <span className="chip bad">Not “Desktop app”</span>
+                  <Info>Desktop, Android and iOS clients have no JavaScript origins, so browser sign-in always fails with “invalid_client: no registered origin”. If you already made a Desktop client, create a new Web application client in the same project.</Info>
+                </div>
+                <p className="muted" style={{ margin: 0 }}>Paste this under Authorized JavaScript origins (not redirect URIs):</p>
+                <Copy text={origin} label="Authorized JavaScript origin" />
+              </>
+            ) : (
+              <OriginWarning origin={origin} />
+            )}
             <div className="row">
               <Open href={LINKS.clients}>Create client</Open>
               <Info>No redirect URI and no client secret are needed. If anything asks you for the secret, stop.</Info>
@@ -206,6 +220,7 @@ export function Setup() {
           </>
         )}
 
+        {(step === 4 || step === 5) && !secureOrigin && <OriginWarning origin={origin} />}
         {(step === 4 || step === 5) && (
           <div className="stack" style={{ gap: 12 }}>
             <div className="row">
@@ -280,6 +295,7 @@ export function Setup() {
           <ul className="check-list" style={{ fontSize: '0.88rem' }}>
             {[
               ['Popup blocked', 'Allow popups for this site and try again.'],
+              ['invalid_client: no registered origin', 'Most often the client was created as “Desktop app”: create a new client of type Web application. Otherwise add this page’s address under Authorized JavaScript origins exactly (no path, no trailing slash) and retry after a few minutes.'],
               ['origin_mismatch', 'The origin above is missing from your client, or has a trailing slash. Changes take a few minutes.'],
               ['access_denied', 'Add your account as a Test user on the Audience page.'],
               ['API disabled', 'Enable both APIs (step 2) and retry after a minute.'],
@@ -336,5 +352,28 @@ function SetupDiagram({ step }: { step: number }) {
         )
       })}
     </svg>
+  )
+}
+
+function OriginWarning({ origin }: { origin: string }) {
+  const site = new URL(SITE_URL).origin
+  return (
+    <div className="card inset stack" role="alert" style={{ gap: 8 }}>
+      <span className="row" style={{ gap: 8 }}>
+        <Icon name="warn" size={18} style={{ color: 'var(--warn)' }} />
+        <strong>Google sign-in cannot work on this address</strong>
+      </span>
+      <p className="muted" style={{ margin: 0 }}>
+        <code>{origin}</code> is plain http on a network address. Google only accepts https or localhost, so it shows “no registered origin”.
+      </p>
+      <div className="row">
+        <a className="btn sm primary" href={SITE_URL}>
+          Open the https site <Icon name="arrow" size={14} />
+        </a>
+        <span className="muted" style={{ fontSize: '0.85rem' }}>
+          and register <code>{site}</code>
+        </span>
+      </div>
+    </div>
   )
 }

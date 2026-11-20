@@ -81,3 +81,9 @@ describe('explainAuthError', () => {
     expect(explainAuthError('weird').title).toBe('Sign-in failed')
   })
 })
+
+describe('invalid_client guidance', () => {
+  it('points at the JavaScript origins setting', () => {
+    expect(explainAuthError('invalid_client').fix).toMatch(/Authorized JavaScript origins/)
+  })
+})
