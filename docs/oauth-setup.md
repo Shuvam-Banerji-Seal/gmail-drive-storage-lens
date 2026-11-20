@@ -110,3 +110,11 @@ If your problem is not listed, open an issue with the `setup-guide` label and in
 - To revoke the app's access to your account, visit https://myaccount.google.com/permissions and remove the app.
 - To delete the client, open the **Clients** page in your Google Cloud project and delete it. This stops the app from signing in with it.
 - To remove the Client ID and every saved scan from the app, use **Wipe this device** in Settings. You can also clear the site data in your browser.
+
+### "Error 401: invalid_client — no registered origin"
+
+The client is not a **Web application** client, or the site's origin is missing from **Authorized JavaScript origins**.
+The most common cause is choosing **Desktop app** as the application type: Desktop clients have no JavaScript origins, so
+browser sign-in can never work with them (Google's error details mention `NATIVE_DESKTOP`). Create a new client of type
+**Web application** in the same project, add `https://shuvam-banerji-seal.github.io` (or `http://localhost:5173` for development)
+as an origin, and paste the new Client ID into the app.

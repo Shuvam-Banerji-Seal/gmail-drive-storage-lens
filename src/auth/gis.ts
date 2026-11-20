@@ -33,6 +33,11 @@ declare global {
   }
 }
 
+/** True for origins Google lets you register for browser sign-in: https, or http on localhost. */
+export function isRegistrableOrigin(origin: string): boolean {
+  return /^https:\/\//.test(origin) || /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(origin)
+}
+
 export function isValidClientId(id: string): boolean {
   return CLIENT_ID_RE.test(id.trim())
 }
@@ -99,7 +104,10 @@ export function explainAuthError(code: string): { title: string; fix: string } {
   if (c.includes('admin_policy') || c.includes('org_internal'))
     return { title: 'Blocked by your organisation', fix: 'Your Workspace admin restricts third-party apps. Use a personal account or ask the admin.' }
   if (c.includes('invalid_client'))
-    return { title: 'Client ID not recognised', fix: 'Copy the Client ID again from Google Cloud Console → Clients. It ends with .apps.googleusercontent.com.' }
+    return {
+      title: 'Client not accepted for this site',
+      fix: `Use a "Web application" client and add ${typeof location !== 'undefined' ? location.origin : 'this origin'} under Authorized JavaScript origins (no path, no trailing slash). Google only accepts https or localhost. Changes can take about 5 minutes.`,
+    }
   if (c.includes('accessnotconfigured') || c.includes('service_disabled') || c.includes('has not been used'))
     return { title: 'An API is not enabled', fix: 'Enable the Gmail API and the Google Drive API for your Cloud project, wait a minute, retry.' }
   if (c.includes('scope'))
