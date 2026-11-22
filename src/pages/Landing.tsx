@@ -8,6 +8,8 @@ import { go } from '../router'
 import { preloadSignIn, startDemo } from '../state/session'
 import { useApp } from '../state/store'
 
+const BASE = import.meta.env.BASE_URL
+
 export function Landing() {
   const clientId = useApp((s) => s.settings.clientId)
   const mode = useApp((s) => s.mode)
@@ -85,6 +87,28 @@ export function Landing() {
           </div>
         </div>
         <HeroChart />
+      </section>
+
+      <section aria-labelledby="film-h" className="stack" style={{ gap: 14 }}>
+        <div className="section-head">
+          <div className="title">
+            <h2 id="film-h">The film</h2>
+            <Info label="About the film">
+              A 58-second teaser: narrated, with an original score generated in code. The voice is synthetic. Illustrative data only.
+            </Info>
+          </div>
+        </div>
+        <video
+          className="film"
+          controls
+          playsInline
+          preload="none"
+          poster={`${BASE}media/teaser-poster.jpg`}
+          aria-label="Gmail Storage Lens teaser film, 58 seconds, with narration"
+        >
+          <source src={`${BASE}media/gmail-storage-lens-teaser.mp4`} type="video/mp4" />
+          <a href={`${BASE}media/gmail-storage-lens-teaser.mp4`}>Download the film (MP4, 7 MB)</a>
+        </video>
       </section>
 
       <section aria-labelledby="flow-h" className="card hero-card">

@@ -1,0 +1,10 @@
+Your Google storage is full.
+Drive is only a sliver. The real weight hides in Gmail: years of attachments, stored again and again in reply chains.
+Google tells you it's full. It never tells you why.
+Meet Gmail Storage Lens.
+It runs in your browser, with your own Google client. No server. No tracking.
+See who fills your inbox. Follow every gigabyte from sender to action, and watch it grow, month by month.
+Lasso look-alike emails. Find duplicate files, and the hidden versions Drive keeps.
+Then clean up in one place. Starred mail and sent mail stay protected. Trash comes first, with undo. Permanent delete asks you to type it.
+Free. Open source. Verifiable.
+Your storage isn't full of what you love. It's full of what you forgot.

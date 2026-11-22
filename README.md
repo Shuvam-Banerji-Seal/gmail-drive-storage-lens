@@ -11,6 +11,18 @@ It runs entirely in your browser. There is no backend, no account on our side, a
 
 **Live app:** https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/ (the built-in demo runs with synthetic data and needs no sign-in)
 
+## Watch the film
+
+<p align="center">
+  <a href="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/media/gmail-storage-lens-teaser.mp4">
+    <img src="public/media/teaser-preview.gif" alt="Silent preview of the Gmail Storage Lens film: the overflowing quota, the sender treemap, the logo reveal, the sender graph, the airlock. Click to watch the full 58-second film with sound." width="100%">
+  </a>
+</p>
+
+<p align="center"><strong><a href="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/media/gmail-storage-lens-teaser.mp4">▶ Watch the full film with sound</a></strong> (58 seconds, 1080p, 7 MB) · <a href="public/media/gmail-storage-lens-teaser.mp4">MP4 in this repository</a></p>
+
+Why Google storage fills up, what Gmail Storage Lens shows you, and how it cleans up safely. Every frame is HTML and SVG rendered in a headless browser; the music is generated in code. The narration is a synthetic voice, and the data shown is illustrative. How it is made: [video/README.md](video/README.md).
+
 ## Features
 
 - **Demo mode.** Every view runs on synthetic data, so you can explore before you connect an account.
