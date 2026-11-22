@@ -21,6 +21,19 @@ test.describe('static & privacy', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText('filling your Google storage')
   })
 
+  test('the teaser film is served from this site and the CSP allows it', async ({ page, request }) => {
+    await page.goto('/')
+    const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content')
+    expect(csp).toContain("media-src 'self'")
+    const video = page.locator('video.film')
+    await expect(video).toHaveAttribute('poster', /teaser-poster\.jpg$/)
+    const src = await video.locator('source').getAttribute('src')
+    const res = await request.get(src!)
+    expect(res.status()).toBe(200)
+    expect(res.headers()['content-type']).toContain('video/mp4')
+    expect((await res.body()).length).toBeGreaterThan(1_000_000)
+  })
+
   test('demo mode makes no request outside this site', async ({ page }) => {
     const external: string[] = []
     page.on('request', (r) => {

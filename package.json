@@ -17,7 +17,13 @@
     "check:licenses": "node scripts/check-licenses.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "live-check": "tsx scripts/live-check.ts"
+    "live-check": "tsx scripts/live-check.ts",
+    "video:plan": "node video/tools/plan.mjs",
+    "video:render": "node video/tools/render.mjs --jobs 8",
+    "video:music": "python3 video/tools/music.py",
+    "video:mix": "node video/tools/mix.mjs && python3 video/tools/check_audio.py",
+    "video:encode": "sh video/tools/encode.sh",
+    "video": "npm run video:plan && npm run video:render && npm run video:music && npm run video:mix && npm run video:encode"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

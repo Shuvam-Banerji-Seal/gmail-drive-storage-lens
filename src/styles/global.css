@@ -369,3 +369,7 @@ table.data tbody tr:hover td { background: var(--surface-2); }
   .page-head h1 { font-size: 1.9rem; }
   .card { padding: 16px; }
 }
+
+/* ---------- Film ---------- */
+.film { display: block; width: 100%; aspect-ratio: 16 / 9; background: var(--bg-2); border: 1px solid var(--border-2); border-radius: var(--radius); box-shadow: var(--shadow); object-fit: cover; }
+.film:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

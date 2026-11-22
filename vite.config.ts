@@ -12,6 +12,7 @@ export const CSP = [
   'style-src-attr \'unsafe-inline\'',
   "img-src 'self' data: blob:",
   "font-src 'self'",
+  "media-src 'self'",
   'connect-src \'self\' https://www.googleapis.com https://gmail.googleapis.com https://accounts.google.com https://oauth2.googleapis.com',
   "frame-src https://accounts.google.com/gsi/",
   "worker-src 'self' blob:",
