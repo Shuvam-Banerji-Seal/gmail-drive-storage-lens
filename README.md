@@ -14,12 +14,14 @@ It runs entirely in your browser. There is no backend, no account on our side, a
 ## Watch the film
 
 <p align="center">
-  <video src="https://github.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/raw/feat/teaser-video/public/media/gmail-storage-lens-teaser.mp4" poster="https://raw.githubusercontent.com/Shuvam-Banerji-Seal/gmail-drive-storage-lens/feat/teaser-video/public/media/teaser-poster.jpg" controls muted playsinline width="100%">
-    <a href="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/media/gmail-storage-lens-teaser.mp4"><img src="public/media/teaser-poster.jpg" alt="Gmail Storage Lens: the 58-second teaser film. Click to play." width="100%"></a>
-  </video>
+  <a href="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/media/gmail-storage-lens-teaser.mp4">
+    <img src="public/media/teaser-preview.gif" alt="Silent preview of the Gmail Storage Lens film: the overflowing quota, the sender treemap, the logo reveal, the sender graph, the airlock. Click to watch the full 58-second film with sound." width="100%">
+  </a>
 </p>
 
-58 seconds, 1080p, narrated. Why Google storage fills up, what Gmail Storage Lens shows you, and how it cleans up safely. Every frame is HTML and SVG rendered in a headless browser; the music is generated in code. The narration is a synthetic voice, and the data shown is illustrative. How it is made: [video/README.md](video/README.md).
+<p align="center"><strong><a href="https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/media/gmail-storage-lens-teaser.mp4">▶ Watch the full film with sound</a></strong> (58 seconds, 1080p, 7 MB) · <a href="public/media/gmail-storage-lens-teaser.mp4">MP4 in this repository</a></p>
+
+Why Google storage fills up, what Gmail Storage Lens shows you, and how it cleans up safely. Every frame is HTML and SVG rendered in a headless browser; the music is generated in code. The narration is a synthetic voice, and the data shown is illustrative. How it is made: [video/README.md](video/README.md).
 
 ## Features
 

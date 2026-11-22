@@ -3,8 +3,9 @@
 A 58-second, 1080p, narrated film that introduces Gmail Storage Lens. It is built the same way as the app: HTML, SVG and
 JavaScript, with the audio generated in code. There is no stock footage, no sample library and no screen recording.
 
-- **Watch it:** [`public/media/gmail-storage-lens-teaser.mp4`](../public/media/gmail-storage-lens-teaser.mp4) (also on the
-  [live site](https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/) and in the main README).
+- **Watch it:** [`public/media/gmail-storage-lens-teaser.mp4`](../public/media/gmail-storage-lens-teaser.mp4), also on the
+  [live site](https://shuvam-banerji-seal.github.io/gmail-drive-storage-lens/). GitHub does not play `<video>` tags that
+  point at repository files, so the main README shows a silent animated preview that links to the full film.
 - **Story:** the capacity bar overflows, Drive is a sliver, the weight is Gmail, the same attachment is stored again in every
   reply, Google never says why → the product → no server, your own client → senders, rivers, tides → lasso, twins, ghosts →
   the airlock → free, open source, verifiable → one closing line.
@@ -24,7 +25,7 @@ One file, `build/timeline.json`, drives everything, so picture, music and sound 
 | `tools/render.mjs` | Renders every frame with headless Chromium: frame *n* is `window.__seek(n / 30)`, so the render is deterministic |
 | `tools/music.py` | The score and sound effects (additive and FM synthesis, filtered noise, convolution reverb); keyed to the same cues |
 | `tools/mix.mjs`, `tools/check_audio.py` | Places the voice, ducks music and effects under it, sets loudness (-16 LUFS), and checks voice-over-music in the speech band |
-| `tools/encode.sh` | x264 + AAC, BT.709, faststart; also extracts the poster |
+| `tools/encode.sh` | x264 + AAC, BT.709, faststart; also extracts the poster and the silent animated preview used in the README |
 | `data/` | The committed alignment (`words.json`) and timeline (`timeline.json`) |
 | `fonts/` | Fraunces and IBM Plex (SIL Open Font License), self-hosted |
 
@@ -42,7 +43,7 @@ npm run video:plan      # timeline from video/data/words.json
 npm run video:render    # 1,748 PNG frames in video/build/frames (about a minute on 8 cores)
 npm run video:music     # video/build/audio/bed.wav and fx.wav
 npm run video:mix       # needs the narration WAVs in video/build/vo (see below)
-npm run video:encode    # public/media/gmail-storage-lens-teaser.mp4 and the poster
+npm run video:encode    # public/media/gmail-storage-lens-teaser.mp4, teaser-poster.jpg and teaser-preview.gif
 ```
 
 ### The narration
